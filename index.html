@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<title>晨练助手</title>
+<style>
+:root{--bg:#0a0a1a;--card:rgba(255,255,255,0.06);--accent:#ff6b6b;--green:#51cf66;--blue:#339af0;--yellow:#fcc419;--orange:#ff922b}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:#fff;min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.page{display:none;min-height:100vh;min-height:100dvh;padding:20px 16px;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:calc(80px + max(40px,env(safe-area-inset-bottom)))}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* 底部导航 */
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,26,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);display:flex;padding:8px 0;padding-bottom:max(8px,env(safe-area-inset-bottom));z-index:100}
+.nav-item{flex:1;text-align:center;padding:6px 0;cursor:pointer;opacity:.4;transition:opacity .2s}
+.nav-item.active{opacity:1}
+.nav-icon{font-size:22px;display:block}
+.nav-label{font-size:10px;margin-top:2px}
+
+.greeting{font-size:14px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.greeting-name{font-size:26px;font-weight:900;margin-bottom:20px}
+
+/* 天气条 */
+.weather-bar{background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.06);font-size:13px}
+.weather-icon{font-size:24px}
+.weather-info{flex:1}
+.weather-temp{font-weight:700;font-size:15px}
+.weather-desc{color:rgba(255,255,255,.5);font-size:12px}
+.weather-rain{background:rgba(51,154,240,.15);color:var(--blue);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.weather-norain{background:rgba(81,207,102,.15);color:var(--green);padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.weather-loading{color:rgba(255,255,255,.3);font-size:13px}
+
+/* 时间选择 */
+.time-picker{background:var(--card);border-radius:20px;padding:24px 20px;margin-bottom:20px;border:1px solid rgba(255,255,255,.06)}
+.time-picker-label{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:14px;text-align:center}
+.time-wheels{display:flex;align-items:center;justify-content:center;gap:6px}
+.time-scroll{width:80px;height:160px;overflow-y:scroll;-webkit-overflow-scrolling:touch;scroll-snap-type:y mandatory;border-radius:12px;background:rgba(255,255,255,.04)}
+.time-scroll::-webkit-scrollbar{display:none}
+.time-option{height:40px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;scroll-snap-align:center;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s}
+.time-option.selected{color:#fff;background:rgba(255,107,107,.15);border-radius:8px;font-size:26px}
+.time-colon{font-size:28px;font-weight:900;color:rgba(255,255,255,.3)}
+.time-now-btn{display:block;margin:12px auto 0;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);font-size:12px;padding:6px 20px;border-radius:20px;cursor:pointer}
+
+.go-btn{width:100%;padding:18px;border:none;border-radius:16px;font-size:18px;font-weight:800;letter-spacing:2px;cursor:pointer;background:linear-gradient(135deg,#ff6b6b,#cc5de8);color:#fff;transition:transform .15s;-webkit-appearance:none;margin-bottom:20px}
+.go-btn:active{transform:scale(.97)}
+
+/* 结果卡片 */
+.result-card{background:var(--card);border-radius:24px;padding:32px 24px;margin-top:24px;border:1px solid rgba(255,255,255,.08);display:none}
+.result-card.show{display:block;animation:fadeIn .5s ease}
+.result-emoji{font-size:56px;text-align:center;margin-bottom:8px;animation:pulse 2s ease infinite}
+.result-center{text-align:center}
+.result-type{text-align:center;font-size:12px;padding:4px 14px;border-radius:20px;display:inline-block;margin:0 auto 12px}
+.result-type.outdoor{background:rgba(81,207,102,.15);color:var(--green)}
+.result-type.indoor{background:rgba(51,154,240,.15);color:var(--blue)}
+.result-name{font-size:24px;font-weight:800;margin-bottom:4px}
+.result-dur{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.result-cal{font-size:13px;color:var(--orange);margin-bottom:16px}
+.result-detail{background:rgba(255,255,255,.04);border-radius:14px;padding:16px;font-size:13px;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:12px}
+.result-actions{display:flex;gap:10px;margin-top:8px;margin-bottom:40px}
+.result-actions button{flex:1;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;-webkit-appearance:none}
+.btn-start{background:linear-gradient(135deg,#51cf66,#20c997);color:#fff}
+.btn-reroll{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
+
+/* 浮动计时器（看B站时也能计时） */
+.float-timer{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;background:rgba(10,10,26,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:16px;padding:10px 16px;z-index:200;display:none;border:1px solid rgba(255,107,107,.3);cursor:pointer;min-width:100px;text-align:center}
+.float-timer.show{display:block}
+.float-timer-name{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.float-timer-time{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;color:#fff}
+.float-timer-status{font-size:9px;color:rgba(255,255,255,.3);margin-top:1px}
+
+/* 计时器页 */
+.timer-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center}
+.timer-exercise{font-size:20px;font-weight:700;margin-bottom:8px}
+.timer-circle{width:220px;height:220px;border-radius:50%;background:var(--card);border:4px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px 0;position:relative}
+.timer-ring{position:absolute;top:-4px;left:-4px;width:224px;height:224px}
+.timer-ring circle{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-ring .bg{stroke:rgba(255,255,255,.06)}
+.timer-ring .progress{stroke:var(--accent);transform:rotate(-90deg);transform-origin:center}
+.timer-time{font-size:42px;font-weight:900;font-variant-numeric:tabular-nums}
+.timer-label{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
+.timer-controls{display:flex;gap:16px;margin-top:24px}
+.timer-ctrl{width:60px;height:60px;border-radius:50%;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none}
+.timer-ctrl.play{background:var(--green);color:#fff}
+.timer-ctrl.pause{background:var(--yellow);color:#000}
+.timer-ctrl.stop{background:rgba(255,255,255,.1);color:#fff}
+.timer-done{display:none;text-align:center}
+.timer-done.show{display:block;animation:fadeIn .5s}
+.timer-done-icon{font-size:64px;margin-bottom:8px}
+.timer-done-text{font-size:20px;font-weight:800;margin-bottom:4px}
+.timer-done-sub{font-size:14px;color:rgba(255,255,255,.5)}
+
+/* B站浮层提示 */
+.bilibili-tip{background:rgba(255,107,107,.08);border-radius:12px;padding:14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;text-align:center}
+.bilibili-tip b{color:var(--accent)}
+
+/* 统计 */
+.stats-header{text-align:center;margin-bottom:24px}
+.stats-streak{font-size:48px;font-weight:900;background:linear-gradient(135deg,#ff6b6b,#fcc419);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stats-streak-label{font-size:13px;color:rgba(255,255,255,.4);margin-top:-4px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.06)}
+.stat-val{font-size:24px;font-weight:800}
+.stat-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.stats-history-title{font-size:14px;font-weight:700;margin-bottom:12px}
+.history-row{display:flex;align-items:center;padding:12px 16px;background:var(--card);border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,.04)}
+.history-row .h-emoji{font-size:20px;margin-right:12px}
+.history-row .h-info{flex:1}
+.history-row .h-name{font-size:14px;font-weight:600}
+.history-row .h-meta{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.history-row .h-time{font-size:13px;font-weight:700;color:rgba(255,255,255,.6)}
+
+/* 关于 */
+.about{text-align:center;padding-top:40px}
+.about-icon{font-size:64px;margin-bottom:12px}
+.about-title{font-size:22px;font-weight:900;margin-bottom:4px}
+.about-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:32px}
+.rules{background:var(--card);border-radius:16px;padding:20px;text-align:left;border:1px solid rgba(255,255,255,.06)}
+.rules h3{font-size:14px;margin-bottom:12px;color:var(--accent)}
+.rules li{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;line-height:1.6;list-style:none;padding-left:16px;position:relative}
+.rules li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.install-tip{margin-top:24px;background:rgba(51,154,240,.1);border-radius:12px;padding:16px;text-align:left}
+.install-tip p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7}
+</style>
+</head>
+<body>
+
+<!-- 浮动计时器（全局，看B站视频时也能看到） -->
+<div class="float-timer" id="floatTimer" onclick="switchPage('Timer')">
+  <div class="float-timer-name" id="floatName"></div>
+  <div class="float-timer-time" id="floatTime">00:00</div>
+  <div class="float-timer-status" id="floatStatus"></div>
+</div>
+
+<!-- 首页 -->
+<div class="page active" id="pageHome">
+  <div class="greeting" id="greeting">早安</div>
+  <div class="greeting-name">宸总，开练</div>
+  <div class="weather-bar" id="weatherBar">
+    <span class="weather-loading">正在获取天气...</span>
+  </div>
+  <div class="time-picker">
+    <div class="time-picker-label">今天几点起的？</div>
+    <div class="time-wheels">
+      <div class="time-scroll" id="hourScroll"></div>
+      <span class="time-colon">:</span>
+      <div class="time-scroll" id="minuteScroll"></div>
+    </div>
+    <button class="time-now-btn" onclick="fillNow()">现在的时间</button>
+  </div>
+  <button class="go-btn" onclick="recommend()">给我安排</button>
+  <div class="result-card" id="resultCard">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-center">
+      <span class="result-type" id="resultType"></span>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-dur" id="resultDur"></div>
+      <div class="result-cal" id="resultCal"></div>
+    </div>
+    <div class="result-detail" id="resultDetail"></div>
+    <div class="bilibili-tip" id="bilibiliTip" style="display:none">点击<b>开始练+看视频</b>启动计时并跳转B站<br>切到B站看视频时计时不会中断，回来时间是对的</div>
+    <div class="result-actions">
+      <button class="btn-reroll" onclick="recommend()">换一个</button>
+      <button class="btn-start" onclick="startThenVideo()" id="btnGo">开始练</button>
+    </div>
+  </div>
+</div>
+
+<!-- 计时器 -->
+<div class="page" id="pageTimer">
+  <div class="timer-page">
+    <div class="timer-exercise" id="timerExercise"></div>
+    <div class="timer-circle">
+      <svg class="timer-ring" viewBox="0 0 224 224">
+        <circle class="bg" cx="112" cy="112" r="108"></circle>
+        <circle class="progress" id="timerProgress" cx="112" cy="112" r="108" stroke-dasharray="679" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="timer-time" id="timerTime">00:00 / 00:00</div>
+      <div class="timer-label" id="timerLabel">准备开始</div>
+    </div>
+    <div class="timer-controls" id="timerControls">
+      <button class="timer-ctrl play" onclick="toggleTimer()" id="btnPlay">PLAY</button>
+      <button class="timer-ctrl stop" onclick="stopTimer()">STOP</button>
+    </div>
+    <div class="timer-done" id="timerDone">
+      <div class="timer-done-icon">&#127881;</div>
+      <div class="timer-done-text">练完了</div>
+      <div class="timer-done-sub" id="timerDoneSub"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 统计 -->
+<div class="page" id="pageStats">
+  <div class="stats-header">
+    <div class="stats-streak" id="streak">0</div>
+    <div class="stats-streak-label">天连续打卡</div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="totalSessions">0</div><div class="stat-label">总运动次数</div></div>
+    <div class="stat-card"><div class="stat-val" id="totalMinutes">0</div><div class="stat-label">总运动时长(分)</div></div>
+    <div class="stat-card"><div class="stat-val" id="totalCal">0</div><div class="stat-label">总消耗(kcal)</div></div>
+    <div class="stat-card"><div class="stat-val" id="earlyCount">0</div><div class="stat-label">6:30前早起次数</div></div>
+  </div>
+  <div class="stats-history-title">运动记录</div>
+  <div id="historyList"></div>
+</div>
+
+<!-- 关于 -->
+<div class="page" id="pageAbout">
+  <div class="about">
+    <div class="about-icon">&#127749;</div>
+    <div class="about-title">晨练助手</div>
+    <div class="about-sub">保下限，不设上限</div>
+    <div class="rules">
+      <h3>规则</h3>
+      <ul>
+        <li>6:30前起床 + 没下雨 &#8594; 戶外跑步</li>
+        <li>6:30前起床 + 下雨 &#8594; 室内运动（拳击/HIIT/健身操）</li>
+        <li>6:30-7:10起床 &#8594; 室内运动，时长适中</li>
+        <li>7:10后起床 &#8594; 室内运动，短时高效+羽毛球专项</li>
+        <li>起得越早，时长越长，对得起你爬起来的决心</li>
+      </ul>
+    </div>
+    <div class="install-tip">
+      <p><b>iPhone 使用步骤（只需一次）：</b></p>
+      <p>1. 电脑上双击"启动服务器.bat"</p>
+      <p>2. 确保手机和电脑连同一个WiFi</p>
+      <p>3. 手机Safari地址栏输入电脑显示的IP地址</p>
+      <p>4. 点底部"分享"按钮 → "添加到主屏幕"</p>
+      <p>5. 以后点桌面图标就能直接用了</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,.3)">提示：用的时候电脑需要开着</p>
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-item active" onclick="switchPage('Home')"><span class="nav-icon">&#127968;</span><span class="nav-label">首页</span></div>
+  <div class="nav-item" onclick="switchPage('Timer')"><span class="nav-icon">&#9201;</span><span class="nav-label">计时</span></div>
+  <div class="nav-item" onclick="switchPage('Stats')"><span class="nav-icon">&#128202;</span><span class="nav-label">统计</span></div>
+  <div class="nav-item" onclick="switchPage('About')"><span class="nav-icon">&#9881;</span><span class="nav-label">关于</span></div>
+</nav>
+
+<script>
+// ===== 运动库 =====
+var EXERCISES = {
+  outdoor: [
+    { name:'户外慢跑', emoji:'\ud83c\udfc3', minTime:30, maxTime:45, calPerMin:10,
+      tips:'开始5分钟慢跑热身，中间保持匀速，最后5分钟降速。心率控制在140-160之间。跑完拉伸5分钟。',
+      video:null },
+    { name:'户外变速跑', emoji:'\ud83c\udfc3\u200d\u2642\ufe0f', minTime:25, maxTime:40, calPerMin:12,
+      tips:'1分钟快跑+1分钟慢跑交替，燃脂效率比匀速跑高40%。适合有跑步基础后尝试。',
+      video:null },
+    { name:'越野跑/坡道跑', emoji:'\u26f0\ufe0f', minTime:25, maxTime:40, calPerMin:11,
+      tips:'找有坡度的路面，上坡跑增强腿部力量，对羽毛球蹬跨步帮助很大。注意膝盖不要内扣。',
+      video:null },
+  ],
+  indoor_main: [
+    { name:'拳击训练', emoji:'\ud83e\udd4a', minTime:30, maxTime:40, calPerMin:11,
+      tips:'基础组合拳：直拳+勾拳+摆拳。每个组合练3分钟休息1分钟，循环8-10轮。出拳时转腰发力。',
+      video:'https://search.bilibili.com/all?keyword=%E6%8B%B3%E5%87%BB%E8%AE%AD%E7%BB%8330%E5%88%86%E9%92%9F%20%E8%B7%9F%E7%BB%83' },
+    { name:'HIIT高强度间歇', emoji:'\ud83d\udd25', minTime:20, maxTime:30, calPerMin:13,
+      tips:'30秒全力+15秒休息，循环8-12组。动作库：波比跳、高抬腿、开合跳、深蹲跳、登山跑。',
+      video:'https://search.bilibili.com/all?keyword=HIIT%E8%AE%AD%E7%BB%8320%E5%88%86%E9%92%9F%20%E8%B7%9F%E7%BB%83%20%E6%97%A0%E5%99%A8%E6%A2%B0' },
+    { name:'室内健身操', emoji:'\ud83d\udc83', minTime:25, maxTime:40, calPerMin:8,
+      tips:'跟着视频做即可，帕梅拉/周六野都行。适合不想动脑的日子，跟着节奏走。',
+      video:'https://search.bilibili.com/all?keyword=%E5%81%A5%E8%BA%AB%E6%93%8D30%E5%88%86%E9%92%9F%20%E8%B7%9F%E7%BB%83%20%E5%A5%B3%E7%94%9F' },
+  ],
+  indoor_short: [
+    { name:'羽毛球步伐练习', emoji:'\ud83c\udfd8', minTime:10, maxTime:20, calPerMin:9,
+      tips:'米字步练习：从中心向8个方向移动，每步到位后回中。重点练并步、交叉步、蹬跨步。',
+      video:'https://search.bilibili.com/all?keyword=%E7%BE%BD%E6%AF%9B%E7%90%83%E6%AD%A5%E4%BC%90%E7%BB%83%E4%B9%A0%20%E7%B1%B3%E5%AD%97%E6%AD%A5' },
+    { name:'羽毛球挥拍练习', emoji:'\ud83c\udfd8', minTime:10, maxTime:15, calPerMin:6,
+      tips:'对镜挥拍50次，检查：侧身-引拍-转体-击球-随挥。动作定型比力量重要。',
+      video:'https://search.bilibili.com/all?keyword=%E7%BE%BD%E6%AF%9B%E7%90%83%E6%8C%A5%E6%8B%8D%E7%BB%83%E4%B9%A0%20%E6%95%99%E7%A8%8B' },
+  ]
+};
+
+// ===== 天气 =====
+var isRaining = false;
+var weatherLoaded = false;
+var WC_KEY = 'cl_weather';
+var WC_TTL = 1800000;
+
+function loadWeather() {
+  try {
+    var cached = localStorage.getItem(WC_KEY);
+    if (cached) {
+      var c = JSON.parse(cached);
+      if (Date.now() - c.time < WC_TTL) { isRaining = c.data.rain; weatherLoaded = true; showWeather(c.data); return; }
+    }
+  } catch(e){}
+  if (!navigator.geolocation) {
+    document.getElementById('weatherBar').innerHTML = '<span class="weather-loading">无法定位，默认不下雨</span>';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    fetchWeather(pos.coords.latitude, pos.coords.longitude);
+  }, function() {
+    fetchWeather(27.35, 109.17);
+  }, { timeout: 5000 });
+}
+
+function fetchWeather(lat, lon) {
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,weather_code,precipitation&timezone=Asia%2FShanghai';
+  fetch(url).then(function(r){ return r.json(); }).then(function(data) {
+    var w = { temp: data.current.temperature_2m, code: data.current.weather_code, rain: data.current.precipitation > 0, precip: data.current.precipitation };
+    isRaining = w.rain; weatherLoaded = true;
+    try { localStorage.setItem(WC_KEY, JSON.stringify({ time: Date.now(), data: w })); } catch(e){}
+    showWeather(w);
+  }).catch(function() {
+    document.getElementById('weatherBar').innerHTML = '<span class="weather-loading">天气获取失败，默认不下雨</span>';
+  });
+}
+
+function showWeather(w) {
+  var icon = w.rain ? '\u26c8' : (w.temp < 10 ? '\u2744' : '\u2600');
+  var desc = w.rain ? '有雨' : '无雨';
+  var tag = w.rain ? '<span class="weather-rain">\u2602 下雨</span>' : '<span class="weather-norain">\u2600 适合户外</span>';
+  document.getElementById('weatherBar').innerHTML =
+    '<span class="weather-icon">' + icon + '</span>' +
+    '<div class="weather-info"><div class="weather-temp">' + w.temp + '\u00b0C</div><div class="weather-desc">' + desc + (w.precip > 0 ? ' \u00b7 ' + w.precip + 'mm' : '') + '</div></div>' + tag;
+}
+
+// ===== 时间选择 =====
+var selectedHour = 6, selectedMinute = 30;
+
+function initScrolls() {
+  var hs = document.getElementById('hourScroll');
+  var ms = document.getElementById('minuteScroll');
+  for (var h = 5; h <= 8; h++) {
+    var d = document.createElement('div');
+    d.className = 'time-option' + (h === 6 ? ' selected' : '');
+    d.textContent = h;
+    (function(hh, el) {
+      el.onclick = function() { selectedHour = hh; hs.querySelectorAll('.time-option').forEach(function(e){e.classList.remove('selected')}); el.classList.add('selected'); };
+    })(h, d);
+    hs.appendChild(d);
+  }
+  for (var m = 0; m < 60; m += 5) {
+    var d2 = document.createElement('div');
+    d2.className = 'time-option' + (m === 30 ? ' selected' : '');
+    d2.textContent = String(m).padStart(2, '0');
+    (function(mm, el) {
+      el.onclick = function() { selectedMinute = mm; ms.querySelectorAll('.time-option').forEach(function(e){e.classList.remove('selected')}); el.classList.add('selected'); };
+    })(m, d2);
+    ms.appendChild(d2);
+  }
+}
+
+function fillNow() {
+  var now = new Date();
+  selectedHour = now.getHours();
+  selectedMinute = Math.round(now.getMinutes() / 5) * 5;
+  if (selectedMinute >= 60) { selectedMinute = 0; selectedHour++; }
+  document.querySelectorAll('#hourScroll .time-option').forEach(function(e){e.classList.toggle('selected', parseInt(e.textContent) === selectedHour)});
+  document.querySelectorAll('#minuteScroll .time-option').forEach(function(e){e.classList.toggle('selected', parseInt(e.textContent) === selectedMinute)});
+}
+
+// ===== 推荐 =====
+var currentExercise = null;
+var currentTime = 0;
+var lastPool = '';
+
+function recommend() {
+  var mins = selectedHour * 60 + selectedMinute;
+  var isEarly = mins <= 390;
+  var isLate = mins > 430;
+
+  var pool, poolName;
+  if (isEarly && !isRaining) {
+    pool = EXERCISES.outdoor; poolName = 'outdoor';
+  } else if (isEarly && isRaining) {
+    pool = EXERCISES.indoor_main; poolName = 'indoor_early';
+  } else if (isLate) {
+    pool = EXERCISES.indoor_main.concat(EXERCISES.indoor_main, EXERCISES.indoor_short, EXERCISES.indoor_short, EXERCISES.indoor_short);
+    poolName = 'indoor_late';
+  } else {
+    pool = EXERCISES.indoor_main.concat(EXERCISES.indoor_main, EXERCISES.indoor_short);
+    poolName = 'indoor_mid';
+  }
+
+  var pick, attempts = 0;
+  do { pick = pool[Math.floor(Math.random() * pool.length)]; attempts++; }
+  while (attempts < 10 && lastPool === poolName && currentExercise && pick.name === currentExercise.name && pool.length > 1);
+  lastPool = poolName;
+
+  var duration;
+  if (mins <= 360) duration = pick.maxTime;
+  else if (isEarly) { duration = Math.round((pick.minTime + pick.maxTime * 2) / 3 / 5) * 5; if (duration < pick.minTime) duration = pick.minTime; if (duration > pick.maxTime) duration = pick.maxTime; }
+  else if (isLate) duration = pick.minTime;
+  else { duration = Math.round((pick.minTime + pick.maxTime) / 2 / 5) * 5; if (duration < pick.minTime) duration = pick.minTime; if (duration > pick.maxTime) duration = pick.maxTime; }
+
+  var cal = Math.round(duration * pick.calPerMin);
+  currentExercise = pick;
+  currentTime = duration;
+
+  document.getElementById('resultEmoji').textContent = pick.emoji;
+  document.getElementById('resultName').textContent = pick.name;
+  document.getElementById('resultDur').textContent = duration + '分钟';
+  document.getElementById('resultCal').textContent = '约消耗 ' + cal + ' kcal';
+  var label = (isEarly && !isRaining) ? '户外' : '室内';
+  var te = document.getElementById('resultType');
+  te.textContent = label; te.className = 'result-type ' + (label === '户外' ? 'outdoor' : 'indoor');
+  document.getElementById('resultDetail').textContent = pick.tips;
+
+  // B站提示
+  var tip = document.getElementById('bilibiliTip');
+  if (pick.video) { tip.style.display = 'block'; } else { tip.style.display = 'none'; }
+
+  // 按钮文字
+  document.getElementById('btnGo').textContent = pick.video ? '开始练+看视频' : '开始练';
+
+  document.getElementById('resultCard').classList.add('show');
+  // 滚动到结果
+  setTimeout(function(){ document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
+}
+
+// ===== 点击"开始练"：先启计时器，再跳B站 =====
+var pendingVideo = null;
+
+function startThenVideo() {
+  if (!currentExercise) return;
+  pendingVideo = currentExercise.video;
+  // 启动计时器
+  switchPage('Timer');
+  initTimer();
+  // 自动开始计时
+  toggleTimer();
+  // 如果有视频，1.5秒后自动跳B站（让用户看到计时器已启动）
+  if (pendingVideo) {
+    setTimeout(function() {
+      var vUrl = currentExercise.video;
+      if (currentTime !== currentExercise.maxTime && currentTime !== currentExercise.minTime) {
+        vUrl = vUrl.replace(/\d+分钟/, currentTime + '分钟');
+      }
+      window.open(vUrl, '_blank');
+    }, 1500);
+  }
+}
+
+// ===== 浮动计时器 =====
+function updateFloatTimer() {
+  var elapsed = getElapsedMs();
+  if (!timerRunning && elapsed === 0) {
+    document.getElementById('floatTimer').classList.remove('show');
+    return;
+  }
+  document.getElementById('floatTimer').classList.add('show');
+  document.getElementById('floatName').textContent = currentExercise ? currentExercise.name : '';
+  document.getElementById('floatTime').textContent = fmtTimeMs(elapsed);
+  document.getElementById('floatStatus').textContent = timerRunning ? '计时中' : '已暂停';
+}
+
+// ===== 计时器（时间戳方式，后台也能准确计时） =====
+var timerInterval = null, timerAccumulatedMs = 0, timerStartWall = 0, timerTarget = 0, timerRunning = false;
+
+function getElapsedMs() {
+  if (timerRunning) return timerAccumulatedMs + (Date.now() - timerStartWall);
+  return timerAccumulatedMs;
+}
+
+function initTimer() {
+  timerTarget = currentTime * 60 * 1000;
+  timerAccumulatedMs = 0; timerRunning = false; timerStartWall = 0;
+  document.getElementById('timerExercise').textContent = (currentExercise ? currentExercise.emoji + ' ' : '') + (currentExercise ? currentExercise.name : '');
+  document.getElementById('timerTime').textContent = '00:00 / ' + fmtTimeMs(timerTarget);
+  document.getElementById('timerLabel').textContent = '准备开始';
+  document.getElementById('timerProgress').style.strokeDashoffset = '0';
+  document.getElementById('timerDone').classList.remove('show');
+  document.getElementById('timerControls').style.display = 'flex';
+  document.getElementById('btnPlay').textContent = 'PAUSE';
+  document.getElementById('btnPlay').className = 'timer-ctrl play';
+  updateFloatTimer();
+}
+
+function toggleTimer() {
+  if (timerRunning) {
+    timerAccumulatedMs = timerAccumulatedMs + (Date.now() - timerStartWall);
+    timerRunning = false;
+    clearInterval(timerInterval);
+    document.getElementById('btnPlay').textContent = 'PLAY'; document.getElementById('btnPlay').className = 'timer-ctrl play';
+    document.getElementById('timerLabel').textContent = '已暂停';
+  } else {
+    timerStartWall = Date.now();
+    timerRunning = true;
+    document.getElementById('btnPlay').textContent = 'PAUSE'; document.getElementById('btnPlay').className = 'timer-ctrl pause';
+    document.getElementById('timerLabel').textContent = '运动中...';
+    timerInterval = setInterval(refreshTimerDisplay, 500);
+  }
+  updateFloatTimer();
+}
+
+function refreshTimerDisplay() {
+  var elapsed = getElapsedMs();
+  document.getElementById('timerProgress').style.strokeDashoffset = String(679 * (1 - elapsed / timerTarget));
+  document.getElementById('timerTime').textContent = fmtTimeMs(elapsed) + ' / ' + fmtTimeMs(timerTarget);
+  updateFloatTimer();
+  document.title = fmtTimeMs(elapsed) + ' ' + (currentExercise ? currentExercise.name : '');
+  if (elapsed >= timerTarget) { finishTimer(); }
+}
+
+function stopTimer() { if (getElapsedMs() > 0) finishTimer(); }
+
+function fmtTimeMs(ms) { var s = Math.floor(ms / 1000); return fmtTime(s); }
+
+function fmtTime(s) { var m = Math.floor(s/60), sec = s%60; return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+// 页面从后台恢复时刷新显示
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && timerRunning) { refreshTimerDisplay(); }
+});
+
+function finishTimer() {
+  clearInterval(timerInterval); timerRunning = false;
+  var finalMs = getElapsedMs();
+  var minutes = Math.max(1, Math.round(finalMs / 60000));
+  var cal = minutes * (currentExercise ? currentExercise.calPerMin : 8);
+  document.getElementById('timerControls').style.display = 'none';
+  document.getElementById('timerDone').classList.add('show');
+  document.getElementById('timerDoneSub').textContent = '运动 ' + minutes + ' 分钟，消耗约 ' + cal + ' kcal';
+  document.getElementById('floatTimer').classList.remove('show');
+  document.title = '晨练助手';
+  var today = new Date();
+  var ds = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  saveRecord(ds, String(selectedHour).padStart(2,'0') + ':' + String(selectedMinute).padStart(2,'0'), currentExercise ? currentExercise.name : '', currentExercise ? currentExercise.emoji : '', minutes, cal);
+  updateStats();
+}
+
+// ===== 数据 =====
+function saveRecord(date, time, name, emoji, minutes, cal) {
+  var r = JSON.parse(localStorage.getItem('cl_records') || '[]');
+  r.unshift({ date:date, time:time, name:name, emoji:emoji, minutes:minutes, cal:cal });
+  localStorage.setItem('cl_records', JSON.stringify(r));
+}
+function getRecords() { return JSON.parse(localStorage.getItem('cl_records') || '[]'); }
+
+function updateStats() {
+  var r = getRecords();
+  document.getElementById('totalSessions').textContent = r.length;
+  var tm = 0, tc = 0, ec = 0;
+  for (var i = 0; i < r.length; i++) { tm += r[i].minutes; tc += r[i].cal; var hh = parseInt(r[i].time.split(':')[0]), mm = parseInt(r[i].time.split(':')[1]); if (hh*60+mm <= 390) ec++; }
+  document.getElementById('totalMinutes').textContent = tm;
+  document.getElementById('totalCal').textContent = tc;
+  document.getElementById('earlyCount').textContent = ec;
+  var streak = 0, today = new Date();
+  for (var i = 0; i < 365; i++) {
+    var d = new Date(today); d.setDate(d.getDate() - i);
+    var ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    var found = false; for (var j = 0; j < r.length; j++) { if (r[j].date === ds) { found = true; break; } }
+    if (found) streak++; else break;
+  }
+  document.getElementById('streak').textContent = streak;
+  var html = '';
+  for (var i = 0; i < Math.min(r.length, 14); i++) {
+    html += '<div class="history-row"><span class="h-emoji">' + r[i].emoji + '</span><div class="h-info"><div class="h-name">' + r[i].name + '</div><div class="h-meta">' + r[i].date + ' \u00b7 ' + r[i].minutes + '分钟 \u00b7 ' + r[i].cal + 'kcal</div></div><span class="h-time">' + r[i].time + '</span></div>';
+  }
+  document.getElementById('historyList').innerHTML = html;
+}
+
+// ===== 页面 =====
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('page' + name).classList.add('active');
+  var pages = ['Home','Timer','Stats','About'];
+  document.querySelectorAll('.nav-item').forEach(function(n, i){ n.classList.toggle('active', pages[i] === name); });
+  if (name === 'Stats') updateStats();
+}
+
+// ===== 初始化 =====
+function setGreeting() {
+  var h = new Date().getHours();
+  document.getElementById('greeting').textContent = h < 12 ? '早安' : h < 18 ? '午安' : '晚上好';
+}
+
+initScrolls();
+setGreeting();
+loadWeather();
+
+// Safari PWA
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function(){}); }
+</script>
+</body>
+</html>
