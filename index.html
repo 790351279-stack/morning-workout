@@ -15,12 +15,20 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .page{display:none;min-height:100vh;min-height:100dvh;padding:16px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:calc(70px + max(36px,env(safe-area-inset-bottom)))}
 .page.active{display:block;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,26,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);display:flex;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:100}
 .nav-item{flex:1;text-align:center;padding:5px 0;cursor:pointer;opacity:.35;transition:opacity .2s}
 .nav-item.active{opacity:1}
 .nav-icon{font-size:20px;display:block}
 .nav-label{font-size:9px;margin-top:1px}
+
+/* 身份选择页 */
+.identity-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;text-align:center;padding:20px}
+.identity-title{font-size:24px;font-weight:900;margin-bottom:8px}
+.identity-sub{font-size:13px;color:var(--dim);margin-bottom:40px}
+.identity-options{display:flex;flex-direction:column;gap:16px;width:100%;max-width:300px}
+.identity-btn{padding:20px;border-radius:16px;border:2px solid rgba(255,255,255,.08);background:var(--card);color:#fff;font-size:18px;font-weight:700;cursor:pointer;-webkit-appearance:none;display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s}
+.identity-btn:active{border-color:var(--accent)}
+
 .section-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .card{background:var(--card);border-radius:14px;padding:14px 16px;border:1px solid rgba(255,255,255,.06);margin-bottom:12px}
 .btn{padding:10px 16px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;-webkit-appearance:none;transition:transform .15s}
@@ -29,93 +37,80 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .btn-green{background:linear-gradient(135deg,var(--green),#20c997);color:#fff}
 .btn-ghost{background:rgba(255,255,255,.08);color:var(--dim)}
 .btn-blue{background:linear-gradient(135deg,var(--blue),#20c997);color:#fff}
+.btn-sm{padding:6px 12px;font-size:11px}
 .input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:14px;outline:none;-webkit-appearance:none}
 .input:focus{border-color:var(--green)}
 .empty{text-align:center;padding:40px 20px;color:var(--dimmer);font-size:13px}
+.sync-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:6px;margin-left:8px}
+.sync-ok{background:rgba(81,207,102,.12);color:var(--green)}
+.sync-err{background:rgba(255,107,107,.12);color:var(--accent)}
+.sync-ing{background:rgba(51,154,240,.12);color:var(--blue)}
+
 .home-greeting{font-size:14px;color:var(--dim);margin-bottom:2px}
-.home-name{font-size:26px;font-weight:900;margin-bottom:16px}
+.home-name{font-size:26px;font-weight:900;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.home-switch{font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border-radius:8px;background:rgba(255,107,107,.1);-webkit-appearance:none;border:none}
 .weather-bar{background:var(--card);border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.06);font-size:12px}
-.weather-icon{font-size:22px}
-.weather-info{flex:1}
-.weather-temp{font-weight:700;font-size:14px}
-.weather-desc{color:var(--dim);font-size:11px}
+.weather-icon{font-size:22px}.weather-info{flex:1}.weather-temp{font-weight:700;font-size:14px}.weather-desc{color:var(--dim);font-size:11px}
 .weather-tag{padding:3px 8px;border-radius:8px;font-size:10px;font-weight:600}
-.rain-tag{background:rgba(51,154,240,.15);color:var(--blue)}
-.norain-tag{background:rgba(81,207,102,.15);color:var(--green)}
+.rain-tag{background:rgba(51,154,240,.15);color:var(--blue)}.norain-tag{background:rgba(81,207,102,.15);color:var(--green)}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.home-grid .card{margin-bottom:0;text-align:center;cursor:pointer}
-.home-grid .card:active{opacity:.8}
-.home-grid .card-icon{font-size:28px;margin-bottom:4px}
-.home-grid .card-label{font-size:12px;font-weight:600}
-.home-grid .card-sub{font-size:10px;color:var(--dim)}
-.today-summary{font-size:12px;color:var(--dim);line-height:1.6}
-.today-summary b{color:#fff}
+.home-grid .card{margin-bottom:0;text-align:center;cursor:pointer}.home-grid .card:active{opacity:.8}
+.home-grid .card-icon{font-size:28px;margin-bottom:4px}.home-grid .card-label{font-size:12px;font-weight:600}.home-grid .card-sub{font-size:10px;color:var(--dim)}
+.today-summary{font-size:12px;color:var(--dim);line-height:1.6}.today-summary b{color:#fff}
+.partner-section{margin-top:14px}
+.partner-header{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--purple);display:flex;align-items:center;gap:6px}
+.partner-task{padding:8px 12px;background:rgba(204,93,232,.06);border-radius:8px;margin-bottom:4px;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;border:1px solid rgba(204,93,232,.08)}
+.partner-task .pt-name{flex:1}.partner-task .pt-done{color:var(--green);font-weight:600}
+
 .plan-date{font-size:14px;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .plan-date-arrow{cursor:pointer;font-size:18px;padding:4px 8px;-webkit-appearance:none;background:none;border:none;color:var(--dim)}
 .plan-date-today{font-size:11px;background:rgba(255,107,107,.12);color:var(--accent);padding:2px 8px;border-radius:6px;margin-left:8px;cursor:pointer;border:none;-webkit-appearance:none}
-.permanent-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
-.permanent-bar::-webkit-scrollbar{display:none}
-.perm-btn{flex-shrink:0;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-size:12px;cursor:pointer;-webkit-appearance:none;white-space:nowrap;display:flex;align-items:center;gap:4px}
-.perm-btn:active{opacity:.7}
-.perm-btn .perm-emoji{font-size:16px}
-.add-task-row{display:flex;gap:8px;margin-bottom:16px}
-.add-task-row .input{flex:1}
-.add-task-row .btn{flex-shrink:0}
-.slot-section{margin-bottom:16px}
-.slot-header{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.slot-header .slot-emoji{font-size:16px}
+.permanent-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;-webkit-overflow-scrolling:touch}.permanent-bar::-webkit-scrollbar{display:none}
+.perm-btn{flex-shrink:0;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;font-size:12px;cursor:pointer;-webkit-appearance:none;white-space:nowrap;display:flex;align-items:center;gap:4px}.perm-btn:active{opacity:.7}.perm-btn .perm-emoji{font-size:16px}
+.add-task-row{display:flex;gap:8px;margin-bottom:16px}.add-task-row .input{flex:1}.add-task-row .btn{flex-shrink:0}
+.slot-section{margin-bottom:16px}.slot-header{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}.slot-header .slot-emoji{font-size:16px}
 .task-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,.04);transition:opacity .2s}
 .task-item.done{opacity:.5}
 .task-item .task-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:12px;-webkit-appearance:none;background:none;padding:0;color:transparent}
 .task-item.done .task-check{border-color:var(--green);color:var(--green)}
-.task-item .task-info{flex:1;min-width:0}
-.task-item .task-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.task-item .task-meta{font-size:10px;color:var(--dim);margin-top:1px}
-.task-item .task-actual{width:50px;text-align:center;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:12px;font-weight:700;outline:none;-webkit-appearance:none}
-.task-item .task-actual:focus{border-color:var(--green)}
+.task-item .task-info{flex:1;min-width:0}.task-item .task-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task-item .task-meta{font-size:10px;color:var(--dim);margin-top:1px}
+.task-item .task-actual{width:50px;text-align:center;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:12px;font-weight:700;outline:none;-webkit-appearance:none}.task-item .task-actual:focus{border-color:var(--green)}
 .task-item .task-del{color:var(--dimmer);cursor:pointer;font-size:16px;padding:4px;-webkit-appearance:none;background:none;border:none}
 .plan-summary-card{background:linear-gradient(135deg,rgba(81,207,102,.08),rgba(51,154,240,.08));border:1px solid rgba(81,207,102,.12);border-radius:14px;padding:16px;margin-top:16px}
-.plan-summary-card h4{font-size:14px;margin-bottom:8px;color:var(--green)}
-.plan-summary-card p{font-size:12px;color:var(--dim);line-height:1.8}
-.plan-summary-card p b{color:#fff}
-.reflect-quick{display:flex;gap:8px;margin-bottom:16px}
-.reflect-quick .input{flex:1}
+.plan-summary-card h4{font-size:14px;margin-bottom:8px;color:var(--green)}.plan-summary-card p{font-size:12px;color:var(--dim);line-height:1.8}.plan-summary-card p b{color:#fff}
+.reflect-quick{display:flex;gap:8px;margin-bottom:16px}.reflect-quick .input{flex:1}
 .note-item{padding:10px 14px;background:var(--card);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:10px}
-.note-item .note-time{font-size:10px;color:var(--dimmer);flex-shrink:0;padding-top:2px}
-.note-item .note-text{font-size:13px;flex:1;line-height:1.5}
-.note-item .note-del{color:var(--dimmer);cursor:pointer;font-size:14px;flex-shrink:0;-webkit-appearance:none;background:none;border:none;padding:2px}
-.reflect-area{width:100%;min-height:200px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:14px;line-height:1.8;outline:none;resize:vertical;-webkit-appearance:none}
-.reflect-area:focus{border-color:var(--purple)}
-.reflect-prompt{font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:12px;padding:12px;background:rgba(204,93,232,.06);border-radius:10px;border:1px solid rgba(204,93,232,.1)}
-.reflect-prompt b{color:var(--purple)}
-.stats-header{text-align:center;margin-bottom:20px}
-.stats-streak{font-size:44px;font-weight:900;background:linear-gradient(135deg,#ff6b6b,#fcc419);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stats-streak-label{font-size:12px;color:var(--dim);margin-top:-2px}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.stat-card{background:var(--card);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.06);text-align:center}
-.stat-val{font-size:22px;font-weight:800}
-.stat-label{font-size:10px;color:var(--dim);margin-top:2px}
+.note-item .note-time{font-size:10px;color:var(--dimmer);flex-shrink:0;padding-top:2px}.note-item .note-text{font-size:13px;flex:1;line-height:1.5}.note-item .note-del{color:var(--dimmer);cursor:pointer;font-size:14px;flex-shrink:0;-webkit-appearance:none;background:none;border:none;padding:2px}
+.reflect-area{width:100%;min-height:200px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:14px;line-height:1.8;outline:none;resize:vertical;-webkit-appearance:none}.reflect-area:focus{border-color:var(--purple)}
+.reflect-prompt{font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:12px;padding:12px;background:rgba(204,93,232,.06);border-radius:10px;border:1px solid rgba(204,93,232,.1)}.reflect-prompt b{color:var(--purple)}
+.stats-header{text-align:center;margin-bottom:20px}.stats-streak{font-size:44px;font-weight:900;background:linear-gradient(135deg,#ff6b6b,#fcc419);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.stats-streak-label{font-size:12px;color:var(--dim);margin-top:-2px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.06);text-align:center}.stat-val{font-size:22px;font-weight:800}.stat-label{font-size:10px;color:var(--dim);margin-top:2px}
 .stats-history-title{font-size:14px;font-weight:700;margin-bottom:10px}
-.history-row{display:flex;align-items:center;padding:10px 14px;background:var(--card);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,.04)}
-.history-row .h-info{flex:1}
-.history-row .h-name{font-size:13px;font-weight:600}
-.history-row .h-meta{font-size:10px;color:var(--dim);margin-top:1px}
-.history-row .h-right{text-align:right}
-.history-row .h-time{font-size:12px;font-weight:700;color:var(--dim)}
-.about{text-align:center;padding-top:30px}
-.about-icon{font-size:56px;margin-bottom:10px}
-.about-title{font-size:20px;font-weight:900;margin-bottom:4px}
-.about-sub{font-size:12px;color:var(--dim);margin-bottom:24px}
-.rules{background:var(--card);border-radius:14px;padding:16px;text-align:left;border:1px solid rgba(255,255,255,.06);margin-bottom:12px}
-.rules h3{font-size:13px;margin-bottom:10px;color:var(--accent)}
-.rules li{font-size:12px;color:var(--dim);margin-bottom:6px;line-height:1.6;list-style:none;padding-left:14px;position:relative}
-.rules li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.history-row{display:flex;align-items:center;padding:10px 14px;background:var(--card);border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,.04)}.history-row .h-info{flex:1}.history-row .h-name{font-size:13px;font-weight:600}.history-row .h-meta{font-size:10px;color:var(--dim);margin-top:1px}.history-row .h-right{text-align:right}.history-row .h-time{font-size:12px;font-weight:700;color:var(--dim)}
+.about{text-align:center;padding-top:30px}.about-icon{font-size:56px;margin-bottom:10px}.about-title{font-size:20px;font-weight:900;margin-bottom:4px}.about-sub{font-size:12px;color:var(--dim);margin-bottom:24px}
+.rules{background:var(--card);border-radius:14px;padding:16px;text-align:left;border:1px solid rgba(255,255,255,.06);margin-bottom:12px}.rules h3{font-size:13px;margin-bottom:10px;color:var(--accent)}.rules li{font-size:12px;color:var(--dim);margin-bottom:6px;line-height:1.6;list-style:none;padding-left:14px;position:relative}.rules li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
 </style>
 </head>
 <body>
-<div class="page active" id="pageHome">
+
+<!-- 身份选择 -->
+<div class="identity-page" id="pageIdentity">
+  <div class="identity-title">&#127749; 宸总助手</div>
+  <div class="identity-sub">你是谁？选一下</div>
+  <div class="identity-options">
+    <button class="identity-btn" onclick="setIdentity('宸总')">&#128081; 宸总</button>
+    <button class="identity-btn" onclick="setIdentity('宝宝酱')">&#128149; 宝宝酱</button>
+  </div>
+  <div style="margin-top:24px;width:100%;max-width:300px">
+    <div style="font-size:11px;color:var(--dimmer);margin-bottom:6px">同步密钥（首次使用需输入，之后不用）</div>
+    <input type="text" class="input" id="tokenInput" placeholder="ghp_..." value="" style="font-size:11px">
+  </div>
+</div>
+
+<!-- 首页 -->
+<div class="page" id="pageHome">
   <div class="home-greeting" id="greeting">早安</div>
-  <div class="home-name">宸总</div>
+  <div class="home-name"><span id="homeUserName">宸总</span><button class="home-switch" onclick="showIdentity()">切换</button></div>
   <div class="weather-bar" id="weatherBar"><span style="color:var(--dimmer);font-size:12px">获取天气...</span></div>
   <div class="home-grid">
     <div class="card" onclick="switchPage('Plan')"><div class="card-icon" id="homePlanIcon">&#128203;</div><div class="card-label">今日计划</div><div class="card-sub" id="homePlanSub">点击安排</div></div>
@@ -123,15 +118,18 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="card" onclick="openBiliWorkout()"><div class="card-icon">&#127936;</div><div class="card-label">晨练跟练</div><div class="card-sub">B站视频</div></div>
     <div class="card" onclick="switchPage('Stats')"><div class="card-icon">&#128200;</div><div class="card-label">统计</div><div class="card-sub" id="homeStatsSub">0天连续</div></div>
   </div>
-  <div class="card" id="homeSummary"><div class="section-title">&#128221; 今日概览</div><div class="today-summary" id="homeTodaySummary">还没有今日计划，点击上方"今日计划"开始安排</div></div>
+  <div class="card"><div class="section-title">&#128221; 今日概览 <span class="sync-badge sync-ing" id="syncBadge">同步中</span></div><div class="today-summary" id="homeTodaySummary">还没有今日计划</div></div>
+  <div class="partner-section" id="partnerHomeSection" style="display:none"><div class="partner-header" id="partnerHomeName">&#128149; TA的计划</div><div id="partnerHomeTasks"></div></div>
 </div>
 
+<!-- 计划页 -->
 <div class="page" id="pagePlan">
   <div class="plan-date">
     <button class="plan-date-arrow" onclick="changePlanDate(-1)">&#9664;</button>
     <span id="planDateLabel">今天</span>
     <button class="plan-date-arrow" onclick="changePlanDate(1)">&#9654;</button>
     <button class="plan-date-today" onclick="goToday()">今天</button>
+    <button class="btn btn-ghost btn-sm" onclick="syncNow()" style="margin-left:auto">&#128260; 同步</button>
   </div>
   <div class="section-title">&#9889; 快速添加</div>
   <div class="permanent-bar" id="permanentBar"></div>
@@ -142,26 +140,23 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   </div>
   <div id="planSlots"></div>
   <div class="plan-summary-card" id="planSummaryCard" style="display:none"><h4>&#9989; 今日总结</h4><div id="planSummaryContent"></div></div>
+  <div class="partner-section" id="partnerPlanSection" style="display:none"><div class="partner-header" id="partnerPlanName">&#128149; TA的今日计划</div><div id="partnerPlanTasks"></div></div>
 </div>
 
+<!-- 反思页 -->
 <div class="page" id="pageReflect">
   <div class="section-title">&#128161; 随手记触动</div>
-  <div class="reflect-quick">
-    <input type="text" class="input" id="noteInput" placeholder="想到什么就记下来..." onkeydown="if(event.key==='Enter')addNote()">
-    <button class="btn btn-primary" onclick="addNote()">记</button>
-  </div>
+  <div class="reflect-quick"><input type="text" class="input" id="noteInput" placeholder="想到什么就记下来..." onkeydown="if(event.key==='Enter')addNote()"><button class="btn btn-primary" onclick="addNote()">记</button></div>
   <div id="noteList"></div>
   <div style="margin-top:24px">
     <div class="section-title">&#128218; 每日反思</div>
     <div class="reflect-prompt" id="reflectPrompt">今天还没有记录触动，先去记录一些吧</div>
-    <textarea class="reflect-area" id="reflectArea" placeholder="写下今天的反思...&#10;&#10;什么让你有感触？学到了什么？明天想改进什么？"></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-ghost" onclick="generateReflect()" style="flex:1">&#129302; AI辅助反思</button>
-      <button class="btn btn-green" onclick="saveReflect()" style="flex:1">&#128190; 保存反思</button>
-    </div>
+    <textarea class="reflect-area" id="reflectArea" placeholder="写下今天的反思..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-ghost" onclick="generateReflect()" style="flex:1">&#129302; AI辅助反思</button><button class="btn btn-green" onclick="saveReflect()" style="flex:1">&#128190; 保存反思</button></div>
   </div>
 </div>
 
+<!-- 统计页 -->
 <div class="page" id="pageStats">
   <div class="stats-header"><div class="stats-streak" id="streak">0</div><div class="stats-streak-label">天连续打卡</div></div>
   <div class="stats-grid">
@@ -174,18 +169,15 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   <div id="historyList"></div>
 </div>
 
+<!-- 关于 -->
 <div class="page" id="pageAbout">
-  <div class="about">
-    <div class="about-icon">&#127749;</div>
-    <div class="about-title">宸总助手</div>
-    <div class="about-sub">计划 · 反思 · 晨练</div>
-    <div class="rules"><h3>每日计划</h3><ul><li>常驻任务一键添加，自定义任务随时创建</li><li>四个时段：早晨/上午/下午/晚上</li><li>18点后出现实际时长输入框，填写后自动生成总结</li></ul></div>
-    <div class="rules"><h3>每日反思</h3><ul><li>白天随手记触动，不限格式</li><li>晚上点"AI辅助反思"自动生成反思框架</li><li>修改后保存，可回看</li></ul></div>
-    <div class="rules"><h3>Apple Watch</h3><ul><li>Watch负责计时、心率、卡路里</li><li>手机负责看B站跟练 + 打卡</li><li>练完在计划里填实际时长</li></ul></div>
-  </div>
+  <div class="about"><div class="about-icon">&#127749;</div><div class="about-title">宸总助手</div><div class="about-sub">计划 · 反思 · 晨练</div>
+  <div class="rules"><h3>双人共享</h3><ul><li>宸总和宝宝酱各自独立使用</li><li>自己的计划自己编辑</li><li>首页和计划页底部能看到TA的计划</li><li>数据自动同步，无需手动</li></ul></div>
+  <div class="rules"><h3>每日计划</h3><ul><li>常驻任务一键添加，自定义随时创建</li><li>四时段：早晨/上午/下午/晚上</li><li>18点后可填实际时长，自动生成总结</li></ul></div>
+  <div class="rules"><h3>Apple Watch</h3><ul><li>Watch计时+心率+卡路里</li><li>手机看B站跟练+打卡</li></ul></div></div>
 </div>
 
-<nav class="nav">
+<nav class="nav" id="mainNav" style="display:none">
   <div class="nav-item active" onclick="switchPage('Home')"><span class="nav-icon">&#127968;</span><span class="nav-label">首页</span></div>
   <div class="nav-item" onclick="switchPage('Plan')"><span class="nav-icon">&#128203;</span><span class="nav-label">计划</span></div>
   <div class="nav-item" onclick="switchPage('Reflect')"><span class="nav-icon">&#128161;</span><span class="nav-label">反思</span></div>
@@ -194,6 +186,69 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 </nav>
 
 <script>
+// ===== 身份 =====
+var USERS=['宸总','宝宝酱'];
+var me=localStorage.getItem('cl_identity')||'';
+function setIdentity(name){
+  me=name;localStorage.setItem('cl_identity',name);
+  var tk=document.getElementById('tokenInput').value.trim();
+  if(tk){localStorage.setItem('cl_gh_token',tk);GH_TOKEN=tk}
+  document.getElementById('pageIdentity').style.display='none';document.getElementById('mainNav').style.display='flex';initApp()
+}
+function showIdentity(){document.getElementById('pageIdentity').style.display='flex';document.getElementById('mainNav').style.display='none';if(GH_TOKEN)document.getElementById('tokenInput').value=GH_TOKEN}
+function partner(){return USERS.filter(function(u){return u!==me})[0]||''}
+
+// ===== 云同步 =====
+var GH_REPO='790351279-stack/morning-workout';
+var GH_TOKEN=localStorage.getItem('cl_gh_token')||'';
+var GH_FILE='data/sync.json';
+var GH_API='https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE;
+var GH_RAW='https://raw.githubusercontent.com/'+GH_REPO+'/main/'+GH_FILE;
+var syncSha=null;
+var syncTimer=null;
+var lastSync=0;
+
+function cloudRead(cb){
+  fetch(GH_RAW+'?t='+Date.now()).then(function(r){return r.json()}).then(function(d){cb(null,d)}).catch(function(e){cb(e,null)});
+}
+function cloudWrite(data,cb){
+  var bodyObj={message:'sync '+Date.now(),content:btoa(unescape(encodeURIComponent(JSON.stringify(data))))};
+  if(syncSha)bodyObj.sha=syncSha;
+  fetch(GH_API,{method:'PUT',headers:{Authorization:'token '+GH_TOKEN,'Content-Type':'application/json'},body:JSON.stringify(bodyObj)})
+  .then(function(r){return r.json()}).then(function(d){if(d.content)syncSha=d.content.sha;cb(null)}).catch(function(e){cb(e)});
+}
+function syncNow(){
+  setSyncBadge('ing');
+  cloudRead(function(err,cloud){
+    if(err){setSyncBadge('err');return}
+    if(cloud&&cloud.sha)syncSha=cloud.sha;
+    // 合并：本地自己的数据 + 云端对方的数据
+    var localData=getAllLocal();
+    if(!cloud||typeof cloud!=='object'||Array.isArray(cloud))cloud={};
+    if(!cloud[me])cloud[me]={plans:{},reflects:{}};
+    // 用本地数据覆盖云端自己的部分
+    cloud[me]=localData;
+    // 保存对方数据到本地
+    var p=partner();
+    if(cloud[p]){localStorage.setItem('cl_partner_data',JSON.stringify(cloud[p]))}
+    // 写回云端
+    cloudWrite(cloud,function(err2){
+      if(err2){setSyncBadge('err')}else{setSyncBadge('ok');lastSync=Date.now()}
+      renderPartner();
+    });
+  });
+}
+function setSyncBadge(s){
+  var el=document.getElementById('syncBadge');
+  if(s==='ok'){el.className='sync-badge sync-ok';el.textContent='已同步'}
+  else if(s==='err'){el.className='sync-badge sync-err';el.textContent='同步失败'}
+  else{el.className='sync-badge sync-ing';el.textContent='同步中'}
+}
+function getAllLocal(){
+  return{plans:JSON.parse(localStorage.getItem('cl_plans')||'{}'),reflects:JSON.parse(localStorage.getItem('cl_reflects')||'{}')};
+}
+
+// ===== 常驻计划 =====
 var PERMANENT=[
   {name:'晨练',emoji:'\ud83c\udfc3',slot:'morning',minutes:40},
   {name:'读书',emoji:'\ud83d\udcd6',slot:'night',minutes:30},
@@ -210,6 +265,7 @@ var SLOTS=[
   {key:'night',label:'晚上',emoji:'\ud83c\udf03',range:'19:00-22:00'}
 ];
 
+// ===== 天气 =====
 var isRaining=false;
 function loadWeather(){
   var c=null;try{c=JSON.parse(localStorage.getItem('cl_weather')||'null')}catch(e){}
@@ -221,8 +277,7 @@ function fetchW(lat,lon){
   fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code,precipitation&timezone=Asia%2FShanghai')
   .then(function(r){return r.json()}).then(function(d){
     var w={temp:d.current.temperature_2m,rain:d.current.precipitation>0,precip:d.current.precipitation};
-    isRaining=w.rain;try{localStorage.setItem('cl_weather',JSON.stringify({time:Date.now(),data:w}))}catch(e){}
-    showWeather(w);
+    isRaining=w.rain;try{localStorage.setItem('cl_weather',JSON.stringify({time:Date.now(),data:w}))}catch(e){}showWeather(w);
   }).catch(function(){showWeather({temp:'--',rain:false,precip:0})});
 }
 function showWeather(w){
@@ -230,19 +285,19 @@ function showWeather(w){
   document.getElementById('weatherBar').innerHTML='<span class="weather-icon">'+icon+'</span><div class="weather-info"><div class="weather-temp">'+w.temp+'\u00b0C</div><div class="weather-desc">'+(w.rain?'有雨':'无雨')+'</div></div>'+tag;
 }
 
+// ===== 日期 =====
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dateFromStr(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dateLabel(s){var t=todayStr();if(s===t)return'今天';var y=new Date();y.setDate(y.getDate()-1);if(s===dateStr(y))return'昨天';var tom=new Date();tom.setDate(tom.getDate()+1);if(s===dateStr(tom))return'明天';return s.slice(5)}
-
 var currentPlanDate=todayStr();
 function changePlanDate(dir){var d=dateFromStr(currentPlanDate);d.setDate(d.getDate()+dir);currentPlanDate=dateStr(d);renderPlan()}
 function goToday(){currentPlanDate=todayStr();renderPlan()}
 
+// ===== 计划 =====
 function getPlan(date){var all=JSON.parse(localStorage.getItem('cl_plans')||'{}');return all[date]||{tasks:[]}}
 function savePlan(date,plan){var all=JSON.parse(localStorage.getItem('cl_plans')||'{}');all[date]=plan;localStorage.setItem('cl_plans',JSON.stringify(all))}
 function getTaskId(){return't'+Date.now()+Math.random().toString(36).slice(2,5)}
-
 function renderPermanentBar(){
   var bar=document.getElementById('permanentBar'),html='';
   for(var i=0;i<PERMANENT.length;i++){var p=PERMANENT[i];html+='<button class="perm-btn" onclick="addPermanent('+i+')"><span class="perm-emoji">'+p.emoji+'</span>'+p.name+'</button>'}
@@ -252,197 +307,153 @@ function addPermanent(idx){
   var p=PERMANENT[idx],plan=getPlan(currentPlanDate);
   for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].name===p.name)return}
   plan.tasks.push({id:getTaskId(),name:p.name,emoji:p.emoji,slot:p.slot,planned:p.minutes,actual:0,done:false});
-  savePlan(currentPlanDate,plan);renderPlan();
+  savePlan(currentPlanDate,plan);renderPlan();debouncedSync();
 }
 function addCustomTask(){
-  var input=document.getElementById('customTaskInput'),name=input.value.trim();
-  if(!name)return;
+  var input=document.getElementById('customTaskInput'),name=input.value.trim();if(!name)return;
   var slot=document.getElementById('customTaskSlot').value,plan=getPlan(currentPlanDate);
   plan.tasks.push({id:getTaskId(),name:name,emoji:'\u270f\ufe0f',slot:slot,planned:30,actual:0,done:false});
-  savePlan(currentPlanDate,plan);input.value='';renderPlan();
+  savePlan(currentPlanDate,plan);input.value='';renderPlan();debouncedSync();
 }
-function toggleTask(id){
-  var plan=getPlan(currentPlanDate);
-  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].id===id){plan.tasks[i].done=!plan.tasks[i].done;break}}
-  savePlan(currentPlanDate,plan);renderPlan();
-}
-function setActual(id,val){
-  var plan=getPlan(currentPlanDate);
-  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].id===id){plan.tasks[i].actual=parseInt(val)||0;break}}
-  savePlan(currentPlanDate,plan);
-}
-function deleteTask(id){
-  var plan=getPlan(currentPlanDate);plan.tasks=plan.tasks.filter(function(t){return t.id!==id});
-  savePlan(currentPlanDate,plan);renderPlan();
-}
+function toggleTask(id){var plan=getPlan(currentPlanDate);for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].id===id){plan.tasks[i].done=!plan.tasks[i].done;break}}savePlan(currentPlanDate,plan);renderPlan();debouncedSync()}
+function setActual(id,val){var plan=getPlan(currentPlanDate);for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].id===id){plan.tasks[i].actual=parseInt(val)||0;break}}savePlan(currentPlanDate,plan);debouncedSync()}
+function deleteTask(id){var plan=getPlan(currentPlanDate);plan.tasks=plan.tasks.filter(function(t){return t.id!==id});savePlan(currentPlanDate,plan);renderPlan();debouncedSync()}
+var syncDebounce=null;
+function debouncedSync(){clearTimeout(syncDebounce);syncDebounce=setTimeout(syncNow,3000)}
 
 function renderPlan(){
   var plan=getPlan(currentPlanDate);
   document.getElementById('planDateLabel').textContent=dateLabel(currentPlanDate)+' '+currentPlanDate;
-  var isEvening=new Date().getHours()>=18;
-  var isPast=currentPlanDate<todayStr();
-  var showActual=isEvening||isPast;
+  var isEvening=new Date().getHours()>=18;var isPast=currentPlanDate<todayStr();var showActual=isEvening||isPast;
   var container=document.getElementById('planSlots'),html='';
   for(var s=0;s<SLOTS.length;s++){
-    var slot=SLOTS[s],tasks=plan.tasks.filter(function(t){return t.slot===slot.key});
-    if(tasks.length===0)continue;
+    var slot=SLOTS[s],tasks=plan.tasks.filter(function(t){return t.slot===slot.key});if(tasks.length===0)continue;
     html+='<div class="slot-section"><div class="slot-header"><span class="slot-emoji">'+slot.emoji+'</span>'+slot.label+' <span style="color:var(--dimmer);font-size:11px">'+slot.range+'</span></div>';
-    for(var i=0;i<tasks.length;i++){
-      var t=tasks[i];
-      html+='<div class="task-item'+(t.done?' done':'')+'">';
-      html+='<button class="task-check" onclick="toggleTask(\''+t.id+'\')">'+(t.done?'\u2713':'')+'</button>';
-      html+='<div class="task-info"><div class="task-name">'+t.emoji+' '+t.name+'</div>';
-      html+='<div class="task-meta">计划'+t.planned+'min'+(t.actual>0?' \u00b7 实际'+t.actual+'min':'')+'</div></div>';
-      if(showActual){html+='<input type="number" class="task-actual" placeholder="\u5206\u949f" value="'+(t.actual>0?t.actual:'')+'" onchange="setActual(\''+t.id+'\',this.value)" oninput="setActual(\''+t.id+'\',this.value)">'}
-      html+='<button class="task-del" onclick="deleteTask(\''+t.id+'\')">\u2715</button></div>';
-    }
-    html+='</div>';
-  }
+    for(var i=0;i<tasks.length;i++){var t=tasks[i];
+      html+='<div class="task-item'+(t.done?' done':'')+'"><button class="task-check" onclick="toggleTask(\''+t.id+'\')">'+(t.done?'\u2713':'')+'</button>';
+      html+='<div class="task-info"><div class="task-name">'+t.emoji+' '+t.name+'</div><div class="task-meta">计划'+t.planned+'min'+(t.actual>0?' \u00b7 实际'+t.actual+'min':'')+'</div></div>';
+      if(showActual)html+='<input type="number" class="task-actual" placeholder="\u5206\u949f" value="'+(t.actual>0?t.actual:'')+'" onchange="setActual(\''+t.id+'\',this.value)" oninput="setActual(\''+t.id+'\',this.value)">';
+      html+='<button class="task-del" onclick="deleteTask(\''+t.id+'\')">\u2715</button></div>'}
+    html+='</div>'}
   if(plan.tasks.length===0)html='<div class="empty">还没有计划，从上方快速添加或自定义任务</div>';
   container.innerHTML=html;
-  var card=document.getElementById('planSummaryCard');
-  if(showActual&&plan.tasks.length>0){card.style.display='block';generateSummary(plan)}else{card.style.display='none'}
+  var card=document.getElementById('planSummaryCard');if(showActual&&plan.tasks.length>0){card.style.display='block';generateSummary(plan)}else{card.style.display='none'}
   updateHomeSummary();
 }
-
 function generateSummary(plan){
   var total=plan.tasks.length,done=0,totalPlan=0,totalActual=0;
   for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++;totalPlan+=plan.tasks[i].planned;totalActual+=plan.tasks[i].actual}
-  var rate=total>0?Math.round(done/total*100):0;
-  var timeRate=totalPlan>0?Math.round(totalActual/totalPlan*100):0;
-  var html='<p>';
-  html+='完成率: <b>'+rate+'%</b>（'+done+'/'+total+'项）<br>';
-  html+='时间比: <b>'+totalActual+'min</b> / '+totalPlan+'min（'+timeRate+'%）<br>';
-  var undone=plan.tasks.filter(function(t){return!t.done});
-  if(undone.length>0){html+='<br>未完成: ';for(var i=0;i<undone.length;i++){html+='<b>'+undone[i].name+'</b>';if(i<undone.length-1)html+='、'}html+='<br>'}
-  var over=plan.tasks.filter(function(t){return t.actual>t.planned&&t.actual>0});
-  if(over.length>0){html+='超额投入: ';for(var i=0;i<over.length;i++){html+='<b>'+over[i].name+'</b>+'+(over[i].actual-over[i].planned)+'min';if(i<over.length-1)html+='、'}html+='<br>'}
-  html+='<br>';
-  if(rate>=80)html+='今天执行力很强，继续保持。';
-  else if(rate>=50)html+='完成了一半以上，未完成的明天优先安排。';
-  else html+='今天完成率偏低，反思一下是计划太多还是执行被什么打断。';
-  html+='</p>';
+  var rate=total>0?Math.round(done/total*100):0;var timeRate=totalPlan>0?Math.round(totalActual/totalPlan*100):0;
+  var html='<p>完成率: <b>'+rate+'%</b>（'+done+'/'+total+'项）<br>时间比: <b>'+totalActual+'min</b> / '+totalPlan+'min（'+timeRate+'%）<br>';
+  var undone=plan.tasks.filter(function(t){return!t.done});if(undone.length>0){html+='<br>未完成: ';for(var i=0;i<undone.length;i++){html+='<b>'+undone[i].name+'</b>';if(i<undone.length-1)html+='、'}html+='<br>'}
+  var over=plan.tasks.filter(function(t){return t.actual>t.planned&&t.actual>0});if(over.length>0){html+='超额: ';for(var i=0;i<over.length;i++){html+='<b>'+over[i].name+'</b>+'+(over[i].actual-over[i].planned)+'min';if(i<over.length-1)html+='、'}html+='<br>'}
+  html+='<br>';if(rate>=80)html+='执行力很强，继续保持。';else if(rate>=50)html+='完成过半，未完成的明天优先。';else html+='完成率偏低，反思下原因。';html+='</p>';
   document.getElementById('planSummaryContent').innerHTML=html;
 }
 
+// ===== 对方数据 =====
+function renderPartner(){
+  var pd=null;try{pd=JSON.parse(localStorage.getItem('cl_partner_data')||'null')}catch(e){}
+  if(!pd){document.getElementById('partnerHomeSection').style.display='none';document.getElementById('partnerPlanSection').style.display='none';return}
+  var pName=partner();var today=todayStr();
+  var planData=pd.plans||{};var todayPlan=planData[today]||{tasks:[]};
+  // 首页
+  document.getElementById('partnerHomeName').innerHTML='\ud83d\udc95 '+pName+'的计划';
+  if(todayPlan.tasks.length>0){
+    var html='';for(var i=0;i<todayPlan.tasks.length;i++){var t=todayPlan.tasks[i];html+='<div class="partner-task"><span class="pt-name">'+t.emoji+' '+t.name+'</span>'+(t.done?'<span class="pt-done">\u2713</span>':'')+'</div>'}
+    document.getElementById('partnerHomeTasks').innerHTML=html;document.getElementById('partnerHomeSection').style.display='block';
+  }else{document.getElementById('partnerHomeSection').style.display='none'}
+  // 计划页
+  document.getElementById('partnerPlanName').innerHTML='\ud83d\udc95 '+pName+'的今日计划';
+  if(todayPlan.tasks.length>0){
+    var html2='';for(var i=0;i<todayPlan.tasks.length;i++){var t=todayPlan.tasks[i];html2+='<div class="partner-task"><span class="pt-name">'+t.emoji+' '+t.name+'</span>'+(t.done?'<span class="pt-done">\u2713</span>':'')+'</div>'}
+    document.getElementById('partnerPlanTasks').innerHTML=html2;document.getElementById('partnerPlanSection').style.display='block';
+  }else{document.getElementById('partnerPlanSection').style.display='none'}
+}
+
+// ===== 反思 =====
 function getReflect(date){var all=JSON.parse(localStorage.getItem('cl_reflects')||'{}');return all[date]||{notes:[],text:''}}
 function saveReflectData(date,data){var all=JSON.parse(localStorage.getItem('cl_reflects')||'{}');all[date]=data;localStorage.setItem('cl_reflects',JSON.stringify(all))}
 function addNote(){
-  var input=document.getElementById('noteInput'),text=input.value.trim();
-  if(!text)return;
+  var input=document.getElementById('noteInput'),text=input.value.trim();if(!text)return;
   var date=todayStr(),data=getReflect(date),now=new Date();
   data.notes.push({id:'n'+Date.now(),text:text,time:String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});
-  saveReflectData(date,data);input.value='';renderReflect();
+  saveReflectData(date,data);input.value='';renderReflect();debouncedSync();
 }
-function deleteNote(id){
-  var date=todayStr(),data=getReflect(date);
-  data.notes=data.notes.filter(function(n){return n.id!==id});
-  saveReflectData(date,data);renderReflect();
-}
-function saveReflect(){
-  var date=todayStr(),data=getReflect(date);
-  data.text=document.getElementById('reflectArea').value;
-  saveReflectData(date,data);
-  var el=document.getElementById('reflectArea');el.style.borderColor='var(--green)';setTimeout(function(){el.style.borderColor=''},1500);
-}
+function deleteNote(id){var date=todayStr(),data=getReflect(date);data.notes=data.notes.filter(function(n){return n.id!==id});saveReflectData(date,data);renderReflect();debouncedSync()}
+function saveReflect(){var date=todayStr(),data=getReflect(date);data.text=document.getElementById('reflectArea').value;saveReflectData(date,data);var el=document.getElementById('reflectArea');el.style.borderColor='var(--green)';setTimeout(function(){el.style.borderColor=''},1500);debouncedSync()}
 function generateReflect(){
-  var date=todayStr(),data=getReflect(date),plan=getPlan(date);
-  var prompt='基于今天的情况，从以下角度反思:\n\n';
-  var done=0,total=plan.tasks.length;
-  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++}
-  if(total>0){
-    prompt+='1. 今日计划完成'+done+'/'+total+'项';
-    var undone=plan.tasks.filter(function(t){return!t.done});
-    if(undone.length>0){prompt+='，未完成：';for(var i=0;i<undone.length;i++)prompt+=undone[i].name+(i<undone.length-1?'、':'');prompt+='。为什么没完成？\n'}
-    else{prompt+='，全部完成。是什么让你今天执行力这么强？\n'}
-  }
-  if(data.notes.length>0){
-    prompt+='\n2. 今天记录了'+data.notes.length+'个触动：\n';
-    for(var i=0;i<data.notes.length;i++)prompt+='   - ['+data.notes[i].time+'] '+data.notes[i].text+'\n';
-    prompt+='   这些触动背后，你真正在意的是什么？\n';
-  }
+  var date=todayStr(),data=getReflect(date),plan=getPlan(date);var prompt='基于今天的情况，从以下角度反思:\n\n';
+  var done=0,total=plan.tasks.length;for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++}
+  if(total>0){prompt+='1. 今日计划完成'+done+'/'+total+'项';var undone=plan.tasks.filter(function(t){return!t.done});if(undone.length>0){prompt+='，未完成：';for(var i=0;i<undone.length;i++)prompt+=undone[i].name+(i<undone.length-1?'、':'');prompt+='。为什么没完成？\n'}else{prompt+='，全部完成。是什么让你执行力这么强？\n'}}
+  if(data.notes.length>0){prompt+='\n2. 今天记录了'+data.notes.length+'个触动：\n';for(var i=0;i<data.notes.length;i++)prompt+='   - ['+data.notes[i].time+'] '+data.notes[i].text+'\n';prompt+='   这些触动背后，你真正在意的是什么？\n'}
   prompt+='\n3. 今天最有价值的一件事是什么？\n4. 明天最想改进的一点是什么？';
   document.getElementById('reflectArea').value=prompt;
 }
 function renderReflect(){
-  var date=todayStr(),data=getReflect(date);
-  var list=document.getElementById('noteList'),html='';
+  var date=todayStr(),data=getReflect(date);var list=document.getElementById('noteList'),html='';
   for(var i=data.notes.length-1;i>=0;i--){var n=data.notes[i];html+='<div class="note-item"><span class="note-time">'+n.time+'</span><span class="note-text">'+n.text+'</span><button class="note-del" onclick="deleteNote(\''+n.id+'\')">\u2715</button></div>'}
-  list.innerHTML=html;
-  document.getElementById('reflectArea').value=data.text||'';
-  var prompt=document.getElementById('reflectPrompt');
-  if(data.notes.length>0){prompt.innerHTML='今天已记录 <b>'+data.notes.length+'</b> 个触动，可以据此写反思了'}
-  else{prompt.textContent='今天还没有记录触动，先去记录一些吧'}
+  list.innerHTML=html;document.getElementById('reflectArea').value=data.text||'';
+  var prompt=document.getElementById('reflectPrompt');if(data.notes.length>0){prompt.innerHTML='今天已记录 <b>'+data.notes.length+'</b> 个触动，可以据此写反思了'}else{prompt.textContent='今天还没有记录触动，先去记录一些吧'}
   document.getElementById('homeReflectSub').textContent=data.notes.length>0?data.notes.length+'个触动':'记录触动';
 }
 
+// ===== 首页概览 =====
 function updateHomeSummary(){
   var date=todayStr(),plan=getPlan(date),data=getReflect(date);
-  if(plan.tasks.length===0){
-    document.getElementById('homeTodaySummary').innerHTML='还没有今日计划，点击上方<b>"今日计划"</b>开始安排';
-    document.getElementById('homePlanSub').textContent='点击安排';
-    document.getElementById('homePlanIcon').textContent='\ud83d\udccb';return;
-  }
-  var done=0,totalPlan=0,totalActual=0;
-  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++;totalPlan+=plan.tasks[i].planned;totalActual+=plan.tasks[i].actual}
-  document.getElementById('homePlanSub').textContent=done+'/'+plan.tasks.length+'已完成';
-  document.getElementById('homePlanIcon').textContent=done===plan.tasks.length?'\u2705':'\ud83d\udccb';
-  var summary='计划: <b>'+done+'/'+plan.tasks.length+'</b>项完成';
-  if(totalActual>0)summary+=' \u00b7 实际<b>'+totalActual+'</b>min';
-  if(data.notes.length>0)summary+='<br>触动: <b>'+data.notes.length+'</b>条记录';
-  if(data.text)summary+='<br>反思: <b>已写</b>';
+  if(plan.tasks.length===0){document.getElementById('homeTodaySummary').innerHTML='还没有今日计划，点击上方<b>"今日计划"</b>开始安排';document.getElementById('homePlanSub').textContent='点击安排';document.getElementById('homePlanIcon').textContent='\ud83d\udccb';return}
+  var done=0,totalPlan=0,totalActual=0;for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++;totalPlan+=plan.tasks[i].planned;totalActual+=plan.tasks[i].actual}
+  document.getElementById('homePlanSub').textContent=done+'/'+plan.tasks.length+'已完成';document.getElementById('homePlanIcon').textContent=done===plan.tasks.length?'\u2705':'\ud83d\udccb';
+  var summary='计划: <b>'+done+'/'+plan.tasks.length+'</b>项完成';if(totalActual>0)summary+=' \u00b7 实际<b>'+totalActual+'</b>min';if(data.notes.length>0)summary+='<br>触动: <b>'+data.notes.length+'</b>条';if(data.text)summary+='<br>反思: <b>已写</b>';
   document.getElementById('homeTodaySummary').innerHTML=summary;
 }
-
 function openBiliWorkout(){
-  var h=new Date().getHours(),keywords;
-  if(h<7)keywords='\u62f3\u51fb\u8bad\u7ec330\u5206\u949f \u8ddf\u7ec3';
-  else if(h<9)keywords='HIIT\u8bad\u7ec320\u5206\u949f \u8ddf\u7ec3 \u65e0\u5668\u68b0';
-  else keywords='\u5065\u8eab\u64cd30\u5206\u949f \u8ddf\u7ec3';
+  var h=new Date().getHours(),keywords;if(h<7)keywords='\u62f3\u51fb\u8bad\u7ec330\u5206\u949f \u8ddf\u7ec3';else if(h<9)keywords='HIIT\u8bad\u7ec320\u5206\u949f \u8ddf\u7ec3 \u65e0\u5668\u68b0';else keywords='\u5065\u8eab\u64cd30\u5206\u949f \u8ddf\u7ec3';
   window.open('https://search.bilibili.com/all?keyword='+encodeURIComponent(keywords),'_blank');
 }
 
+// ===== 统计 =====
 function updateStats(){
-  var plans=JSON.parse(localStorage.getItem('cl_plans')||'{}');
-  var reflects=JSON.parse(localStorage.getItem('cl_reflects')||'{}');
+  var plans=JSON.parse(localStorage.getItem('cl_plans')||'{}');var reflects=JSON.parse(localStorage.getItem('cl_reflects')||'{}');
   var allPlanDays=0,allTotalRate=0,allReflectCount=0,allNoteCount=0;
   for(var key in plans){var p=plans[key];if(p.tasks&&p.tasks.length>0){allPlanDays++;var d2=0;for(var j=0;j<p.tasks.length;j++){if(p.tasks[j].done)d2++}allTotalRate+=Math.round(d2/p.tasks.length*100)}}
   for(var key in reflects){var r=reflects[key];if(r.text)allReflectCount++;allNoteCount+=(r.notes||[]).length}
-  document.getElementById('totalDays').textContent=allPlanDays;
-  document.getElementById('avgRate').textContent=(allPlanDays>0?Math.round(allTotalRate/allPlanDays):0)+'%';
-  document.getElementById('totalReflect').textContent=allReflectCount;
-  document.getElementById('totalNotes').textContent=allNoteCount;
-  var streak=0,today=new Date();
-  for(var i=0;i<365;i++){var d=new Date(today);d.setDate(d.getDate()-i);var ds=dateStr(d);var plan=plans[ds];if(plan&&plan.tasks&&plan.tasks.length>0){var hasDone=false;for(var j=0;j<plan.tasks.length;j++){if(plan.tasks[j].done){hasDone=true;break}}if(hasDone)streak++;else break}else break}
-  document.getElementById('streak').textContent=streak;
-  document.getElementById('homeStatsSub').textContent=streak+'天连续';
-  var recentHtml='';
-  for(var i=6;i>=0;i--){
-    var d=new Date();d.setDate(d.getDate()-i);var ds=dateStr(d);
-    var plan=plans[ds]||{tasks:[]};var refl=reflects[ds]||{notes:[],text:''};
-    var done=0,total=plan.tasks.length;for(var j=0;j<plan.tasks.length;j++){if(plan.tasks[j].done)done++}
-    var rate=total>0?Math.round(done/total*100):0;
-    recentHtml+='<div class="history-row"><div class="h-info"><div class="h-name">'+ds.slice(5)+'</div><div class="h-meta">'+done+'/'+total+'项'+(refl.notes.length>0?' \u00b7 '+refl.notes.length+'触动':'')+(refl.text?' \u00b7 已反思':'')+'</div></div><div class="h-right"><div class="h-time">'+(total>0?rate+'%':'--')+'</div></div></div>';
-  }
+  document.getElementById('totalDays').textContent=allPlanDays;document.getElementById('avgRate').textContent=(allPlanDays>0?Math.round(allTotalRate/allPlanDays):0)+'%';
+  document.getElementById('totalReflect').textContent=allReflectCount;document.getElementById('totalNotes').textContent=allNoteCount;
+  var streak=0,today=new Date();for(var i=0;i<365;i++){var d=new Date(today);d.setDate(d.getDate()-i);var ds=dateStr(d);var plan=plans[ds];if(plan&&plan.tasks&&plan.tasks.length>0){var hasDone=false;for(var j=0;j<plan.tasks.length;j++){if(plan.tasks[j].done){hasDone=true;break}}if(hasDone)streak++;else break}else break}
+  document.getElementById('streak').textContent=streak;document.getElementById('homeStatsSub').textContent=streak+'天连续';
+  var recentHtml='';for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=dateStr(d);var plan=plans[ds]||{tasks:[]};var refl=reflects[ds]||{notes:[],text:''};var done=0,total=plan.tasks.length;for(var j=0;j<plan.tasks.length;j++){if(plan.tasks[j].done)done++}var rate=total>0?Math.round(done/total*100):0;
+  recentHtml+='<div class="history-row"><div class="h-info"><div class="h-name">'+ds.slice(5)+'</div><div class="h-meta">'+done+'/'+total+'项'+(refl.notes.length>0?' \u00b7 '+refl.notes.length+'触动':'')+(refl.text?' \u00b7 已反思':'')+'</div></div><div class="h-right"><div class="h-time">'+(total>0?rate+'%':'--')+'</div></div></div>'}
   document.getElementById('historyList').innerHTML=recentHtml;
 }
 
+// ===== 页面 =====
 function switchPage(name){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
   document.getElementById('page'+name).classList.add('active');
   var pages=['Home','Plan','Reflect','Stats','About'];
   document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',pages[i]===name)});
-  if(name==='Plan'){currentPlanDate=todayStr();renderPlan()}
+  if(name==='Plan'){currentPlanDate=todayStr();renderPlan();renderPartner()}
   if(name==='Reflect')renderReflect();
   if(name==='Stats')updateStats();
+  if(name==='Home')renderPartner();
 }
 
-(function(){
-  var h=new Date().getHours();
-  document.getElementById('greeting').textContent=h<12?'早安':h<18?'午安':'晚上好';
-  loadWeather();renderPermanentBar();updateHomeSummary();updateStats();
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
-})();
+// ===== 初始化 =====
+function initApp(){
+  document.getElementById('homeUserName').textContent=me;
+  var h=new Date().getHours();document.getElementById('greeting').textContent=h<12?'早安':h<18?'午安':'晚上好';
+  loadWeather();renderPermanentBar();updateHomeSummary();updateStats();renderPartner();
+  // 首次同步 + 每60秒自动同步
+  syncNow();
+  clearInterval(syncTimer);
+  syncTimer=setInterval(function(){if(Date.now()-lastSync>55000)syncNow()},60000);
+}
+
+// 启动
+if(me){document.getElementById('pageIdentity').style.display='none';document.getElementById('mainNav').style.display='flex';initApp()}
+else{document.getElementById('pageIdentity').style.display='flex';document.getElementById('mainNav').style.display='none'}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 </script>
 </body>
 </html>
