@@ -1,4 +1,4 @@
-var CACHE_NAME = 'morning-workout-v10';
+var CACHE_NAME = 'morning-workout-v11';
 var ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function(e) {
