@@ -180,7 +180,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="card" onclick="switchPage('Reflect')"><div class="card-icon">&#128161;</div><div class="card-label">随手记</div><div class="card-sub" id="homeReflectSub">触动</div></div>
     <div class="card" onclick="switchPage('Plan');setTimeout(function(){document.getElementById('execSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9989;</div><div class="card-label">打卡</div><div class="card-sub" id="homeExecSub">执行</div></div>
     <div class="card" onclick="switchPage('Mine')"><div class="card-icon">&#128200;</div><div class="card-label">统计</div><div class="card-sub" id="homeStatsSub">0天</div></div>
-    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div>    <div class="card-sub">v11</div></div>
+    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div>    <div class="card-sub">v12</div></div>
   </div>
   <div class="card"><div class="section-title">&#128221; 今日概览 <span class="sync-badge sync-ing" id="syncBadge">同步中</span></div><div class="today-summary" id="homeTodaySummary">还没有今日计划</div></div>
   <div class="partner-section" id="partnerHomeSection" style="display:none"><div class="partner-header" id="partnerHomeName">&#128149; TA的计划</div><div id="partnerHomeTasks"></div></div>
@@ -263,7 +263,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="rules"><h3>双人共享</h3><ul><li>宸总和宝宝酱各自独立使用</li><li>自己的计划自己编辑</li><li>首页能看到TA的计划</li><li>数据自动同步</li></ul></div>
     <div class="rules"><h3>晨练推荐规则</h3><ul><li>6:00前起床 → S级户外运动</li><li>6:00-7:10 → A级有氧/力量</li><li>7:10之后 → B级短时燃脂</li><li>下雨自动切换室内运动</li></ul></div>
     <div class="rules"><h3>Apple Watch</h3><ul><li>Watch计时+心率+卡路里</li><li>手机看B站跟练+打卡</li></ul></div>
-    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v11 · 计划·执行·晨练·反思</div>
+    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v12 · 计划·执行·晨练·反思</div>
   </div>
 </div>
 
@@ -746,6 +746,7 @@ function switchPage(name){
 
 // ===== 初始化 =====
 function initApp(){
+  switchPage('Home');
   document.getElementById('homeUserName').textContent=me;
   var h=new Date().getHours();document.getElementById('greeting').textContent=h<12?'早安':h<18?'午安':'晚上好';
   loadWeather();renderPermanentBar();updateHomeSummary();updateMine();renderPartner();
