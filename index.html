@@ -108,6 +108,16 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 .exec-task .et-unit{font-size:9px;color:var(--dimmer);margin-left:-2px}
 
 /* 晨练页 */
+.wt-picker{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;-webkit-overflow-scrolling:touch}.wt-picker::-webkit-scrollbar{display:none}
+.wt-btn{flex-shrink:0;padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;-webkit-appearance:none;white-space:nowrap;transition:all .2s}
+.wt-btn.active{border-color:var(--accent);background:rgba(255,107,107,.12);color:#fff}
+.wa-card{border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;line-height:1.6;display:flex;align-items:center;gap:10px}
+.wa-card.rain{background:rgba(51,154,240,.08);border:1px solid rgba(51,154,240,.15);color:var(--blue)}
+.wa-card.norain{background:rgba(81,207,102,.08);border:1px solid rgba(81,207,102,.15);color:var(--green)}
+.wa-card .wa-icon{font-size:24px;flex-shrink:0}
+.wa-card .wa-text{flex:1}.wa-card .wa-text b{color:#fff}
+.reroll-btn{margin-left:auto;font-size:11px;padding:4px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--dim);cursor:pointer;-webkit-appearance:none;white-space:nowrap}
+.reroll-btn:active{border-color:var(--accent)}
 .workout-rec{background:linear-gradient(135deg,rgba(255,107,107,.1),rgba(204,93,232,.1));border:1px solid rgba(255,107,107,.15);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px}
 .workout-level{font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;display:inline-block;margin-bottom:8px}
 .workout-level.s{background:rgba(255,107,107,.15);color:var(--accent)}
@@ -180,7 +190,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="card" onclick="switchPage('Reflect')"><div class="card-icon">&#128161;</div><div class="card-label">随手记</div><div class="card-sub" id="homeReflectSub">触动</div></div>
     <div class="card" onclick="switchPage('Plan');setTimeout(function(){document.getElementById('execSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9989;</div><div class="card-label">打卡</div><div class="card-sub" id="homeExecSub">执行</div></div>
     <div class="card" onclick="switchPage('Mine')"><div class="card-icon">&#128200;</div><div class="card-label">统计</div><div class="card-sub" id="homeStatsSub">0天</div></div>
-    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div>    <div class="card-sub">v12</div></div>
+    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div>    <div class="card-sub">v13</div></div>
   </div>
   <div class="card"><div class="section-title">&#128221; 今日概览 <span class="sync-badge sync-ing" id="syncBadge">同步中</span></div><div class="today-summary" id="homeTodaySummary">还没有今日计划</div></div>
   <div class="partner-section" id="partnerHomeSection" style="display:none"><div class="partner-header" id="partnerHomeName">&#128149; TA的计划</div><div id="partnerHomeTasks"></div></div>
@@ -215,7 +225,16 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 
 <!-- 晨练页 -->
 <div class="page" id="pageWorkout">
-  <div class="section-title">&#127936; 晨练推荐</div>
+  <div class="section-title">&#9200; 起床时间</div>
+  <div class="wt-picker" id="wtPicker">
+    <button class="wt-btn active" onclick="selectWakeTime('auto',this)">&#128338; 现在</button>
+    <button class="wt-btn" onclick="selectWakeTime('before6',this)">&#127749; 6:00前</button>
+    <button class="wt-btn" onclick="selectWakeTime('6-630',this)">&#128337; 6:00-6:30</button>
+    <button class="wt-btn" onclick="selectWakeTime('630-710',this)">&#128337; 6:30-7:10</button>
+    <button class="wt-btn" onclick="selectWakeTime('after710',this)">&#128164; 7:10后</button>
+  </div>
+  <div id="weatherAnalysis"></div>
+  <div class="section-title">&#127936; 晨练推荐 <button class="reroll-btn" onclick="rerollWorkout()">&#127922; 换一个</button></div>
   <div class="workout-rec" id="workoutRec"></div>
   <div class="section-title">&#128207; 更多运动</div>
   <div class="workout-list" id="workoutList"></div>
@@ -239,8 +258,13 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
   <div style="margin-top:24px">
     <div class="section-title">&#128218; 每日反思</div>
     <div class="reflect-prompt" id="reflectPrompt">今天还没有记录触动，先去记录一些吧</div>
-    <textarea class="reflect-area" id="reflectArea" placeholder="写下今天的反思..."></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-ghost" onclick="generateReflect()" style="flex:1">&#129302; AI辅助反思</button><button class="btn btn-green" onclick="saveReflect()" style="flex:1">&#128190; 保存反思</button></div>
+    <textarea class="reflect-area" id="reflectArea" placeholder="写下今天的反思..." oninput="autoSaveReflect()"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="generateReflect()" style="flex:1;min-width:100px">&#129302; AI生成反思</button>
+      <button class="btn btn-blue" onclick="copyNotesToAI()" style="flex:1;min-width:100px">&#128203; 复制给AI</button>
+      <button class="btn btn-green" onclick="saveReflect()" style="flex:1;min-width:80px">&#128190; 保存</button>
+    </div>
+    <div id="reflectSaveHint" style="font-size:11px;color:var(--dimmer);text-align:right;margin-top:6px;min-height:14px"></div>
   </div>
 </div>
 
@@ -263,7 +287,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="rules"><h3>双人共享</h3><ul><li>宸总和宝宝酱各自独立使用</li><li>自己的计划自己编辑</li><li>首页能看到TA的计划</li><li>数据自动同步</li></ul></div>
     <div class="rules"><h3>晨练推荐规则</h3><ul><li>6:00前起床 → S级户外运动</li><li>6:00-7:10 → A级有氧/力量</li><li>7:10之后 → B级短时燃脂</li><li>下雨自动切换室内运动</li></ul></div>
     <div class="rules"><h3>Apple Watch</h3><ul><li>Watch计时+心率+卡路里</li><li>手机看B站跟练+打卡</li></ul></div>
-    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v12 · 计划·执行·晨练·反思</div>
+    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v13 · 计划·执行·晨练·反思</div>
   </div>
 </div>
 
@@ -572,61 +596,109 @@ function generateSummary(plan){
 
 // ===== 晨练 =====
 var WORKOUTS={
-  S:{label:'S级 \u00b7 挑战极限',cls:'s',items:[
-    {name:'户外跑步',emoji:'\ud83c\udfc3',kw:'户外跑步5公里'},
-    {name:'变速跑',emoji:'\u26a1',kw:'变速跑训练30分钟'},
-    {name:'越野跑',emoji:'\u26f0\ufe0f',kw:'越野跑训练'},
-    {name:'拳击训练',emoji:'\ud83e\udd4a',kw:'拳击训练30分钟 跟练'}
+  S:{label:'S级 · 挑战极限',cls:'s',items:[
+    {name:'户外跑步',emoji:'🏃',kw:'户外跑步5公里'},
+    {name:'变速跑',emoji:'⚡',kw:'变速跑训练30分钟'},
+    {name:'越野跑',emoji:'⛰️',kw:'越野跑训练'},
+    {name:'拳击训练',emoji:'🥊',kw:'拳击训练30分钟 跟练'}
   ]},
-  A:{label:'A级 \u00b7 高效燃脂',cls:'a',items:[
-    {name:'HIIT',emoji:'\ud83d\udd25',kw:'HIIT训练20分钟 跟练 无器械'},
-    {name:'跳绳',emoji:'\ud83e\uddf9',kw:'跳绳训练15分钟'},
-    {name:'健身操',emoji:'\ud83d\udc83',kw:'健身操30分钟 跟练'},
-    {name:'爬楼梯',emoji:'\ud83c\udfe0',kw:'爬楼梯有氧训练'},
-    {name:'核心训练',emoji:'\ud83c\udfcb',kw:'核心训练15分钟 跟练'},
-    {name:'下肢力量',emoji:'\ud83e\uddd5',kw:'下肢力量训练20分钟'},
-    {name:'瑜伽',emoji:'\ud83e\uddd8',kw:'瑜伽30分钟 跟练'}
+  A:{label:'A级 · 高效燃脂',cls:'a',items:[
+    {name:'HIIT',emoji:'🔥',kw:'HIIT训练20分钟 跟练 无器械'},
+    {name:'跳绳',emoji:'🤸',kw:'跳绳训练15分钟'},
+    {name:'健身操',emoji:'💃',kw:'健身操30分钟 跟练'},
+    {name:'爬楼梯',emoji:'🧗',kw:'爬楼梯有氧训练'},
+    {name:'核心训练',emoji:'🏋️',kw:'核心训练15分钟 跟练'},
+    {name:'下肢力量',emoji:'🦵',kw:'下肢力量训练20分钟'},
+    {name:'瑜伽',emoji:'🧘',kw:'瑜伽30分钟 跟练'}
   ]},
-  B:{label:'B级 \u00b7 轻松激活',cls:'b',items:[
-    {name:'Tabata',emoji:'\u23f1',kw:'Tabata4分钟 跟练'},
-    {name:'步伐练习',emoji:'\ud83c\udfd3',kw:'羽毛球步伐练习10分钟'},
-    {name:'挥拍练习',emoji:'\ud83c\udfd8',kw:'羽毛球挥拍练习'}
+  B:{label:'B级 · 轻松激活',cls:'b',items:[
+    {name:'Tabata',emoji:'⏱️',kw:'Tabata4分钟 跟练'},
+    {name:'步伐练习',emoji:'🏓',kw:'羽毛球步伐练习10分钟'},
+    {name:'挥拍练习',emoji:'🏸',kw:'羽毛球挥拍练习'}
   ]}
 };
 var INDOOR_WORKOUTS={
-  items:[
-    {name:'跳绳',emoji:'\ud83e\uddf9',kw:'跳绳训练15分钟'},
-    {name:'HIIT',emoji:'\ud83d\udd25',kw:'HIIT训练15分钟 跟练 无器械 室内'},
-    {name:'瑜伽',emoji:'\ud83e\uddd8',kw:'瑜伽20分钟 跟练 室内'},
-    {name:'核心训练',emoji:'\ud83c\udfcb',kw:'核心训练15分钟 跟练 室内'},
-    {name:'健身操',emoji:'\ud83d\udc83',kw:'健身操20分钟 跟练 室内'}
+  label:'室内 · 雨天模式',cls:'b',items:[
+    {name:'跳绳',emoji:'🤸',kw:'跳绳训练15分钟'},
+    {name:'HIIT',emoji:'🔥',kw:'HIIT训练15分钟 跟练 无器械 室内'},
+    {name:'瑜伽',emoji:'🧘',kw:'瑜伽20分钟 跟练 室内'},
+    {name:'核心训练',emoji:'🏋️',kw:'核心训练15分钟 跟练 室内'},
+    {name:'健身操',emoji:'💃',kw:'健身操20分钟 跟练 室内'}
   ]
 };
+var wtMode='auto';
+var wtPicked=null;
+function selectWakeTime(mode,btn){
+  wtMode=mode;wtPicked=null;
+  document.querySelectorAll('.wt-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  renderWeatherAnalysis();
+  renderWorkout();
+}
 function getWorkoutLevel(){
-  var h=new Date().getHours(),m=new Date().getMinutes();
-  if(h<6)return'S';if(h<6||(h===6&&m<=30))return'A';if(h<7||(h===7&&m<=10))return'A';return'B';
+  var h,m;
+  if(wtMode==='auto'){h=new Date().getHours();m=new Date().getMinutes()}
+  else if(wtMode==='before6'){h=5;m=0}
+  else if(wtMode==='6-630'){h=6;m=15}
+  else if(wtMode==='630-710'){h=6;m=50}
+  else{h=7;m=30}
+  if(isRaining)return'indoor';
+  if(h<6)return'S';
+  if(h<6||(h===6&&m<=30))return'A';
+  if(h<7||(h===7&&m<=10))return'A';
+  return'B';
+}
+function renderWeatherAnalysis(){
+  var el=document.getElementById('weatherAnalysis');
+  if(!el)return;
+  var w=null;try{w=JSON.parse(localStorage.getItem('cl_weather')||'null')}catch(e){}
+  if(!w||!w.data){el.innerHTML='';return}
+  var d=w.data;
+  var timeLabel='';
+  if(wtMode==='auto'){var now=new Date();timeLabel='当前'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')}
+  else if(wtMode==='before6')timeLabel='6:00前起床';
+  else if(wtMode==='6-630')timeLabel='6:00-6:30起床';
+  else if(wtMode==='630-710')timeLabel='6:30-7:10起床';
+  else timeLabel='7:10后起床';
+  var tempStr=(d.temp!==undefined&&d.temp!==null)?(d.temp+'°C'):'--';
+  if(d.rain){
+    el.innerHTML='<div class="wa-card rain"><span class="wa-icon">🌧️</span><div class="wa-text"><b>'+timeLabel+'</b> · '+tempStr+' · 降雨'+(d.precip||0)+'mm<br>检测到降雨，已自动切换为<b>室内运动</b>，避免路滑和感冒风险</div></div>';
+  }else{
+    el.innerHTML='<div class="wa-card norain"><span class="wa-icon">☀️</span><div class="wa-text"><b>'+timeLabel+'</b> · '+tempStr+' · 无降雨<br>天气良好，适合<b>户外运动</b></div></div>';
+  }
 }
 function openBili(kw){window.open('https://search.bilibili.com/all?keyword='+encodeURIComponent(kw),'_blank')}
+function pickRandomWorkout(){
+  var level=getWorkoutLevel();
+  var pool;
+  if(level==='indoor'){pool=INDOOR_WORKOUTS.items}
+  else{pool=WORKOUTS[level].items}
+  return pool[Math.floor(Math.random()*pool.length)];
+}
 function renderWorkout(){
   var level=getWorkoutLevel();
-  var wo=isRaining?INDOOR_WORKOUTS:WORKOUTS[level];
   var recEl=document.getElementById('workoutRec');
-  if(isRaining){
-    recEl.innerHTML='<div class="workout-level b">\u2602 下雨 \u00b7 室内模式</div><div class="workout-name">\ud83c\udf0c 雨天室内运动</div><div class="workout-sub">降雨检测已开启，自动切换室内运动</div>';
-  }else{
-    var w=WORKOUTS[level];
-    var pick=w.items[Math.floor(Math.random()*w.items.length)];
-    recEl.innerHTML='<div class="workout-level '+w.cls+'">'+w.label+'</div><div class="workout-name">'+pick.emoji+' '+pick.name+'</div><div class="workout-sub">根据起床时间智能推荐</div><div class="workout-actions"><button class="btn btn-green btn-sm" onclick="openBili(\''+pick.kw+'\')">\u25b6 B站跟练</button></div>';
-  }
   var listEl=document.getElementById('workoutList');
-  var items=isRaining?INDOOR_WORKOUTS.items:WORKOUTS[level].items;
+  var recLabel,recCls,recItems,pick;
+  if(level==='indoor'){
+    recLabel=INDOOR_WORKOUTS.label;recCls=INDOOR_WORKOUTS.cls;recItems=INDOOR_WORKOUTS.items;
+  }else{
+    recLabel=WORKOUTS[level].label;recCls=WORKOUTS[level].cls;recItems=WORKOUTS[level].items;
+  }
+  if(!wtPicked||wtPicked.level!==level){wtPicked={level:level,workout:recItems[Math.floor(Math.random()*recItems.length)]}}
+  pick=wtPicked.workout;
+  recEl.innerHTML='<div class="workout-level '+recCls+'">'+recLabel+'</div><div class="workout-name">'+pick.emoji+' '+pick.name+'</div><div class="workout-sub">根据起床时间智能推荐</div><div class="workout-actions"><button class="btn btn-green btn-sm" onclick="openBili(\''+pick.kw+'\')">▶ B站跟练</button></div>';
   var html='';
-  for(var i=0;i<items.length;i++){
-    var it=items[i];
+  for(var i=0;i<recItems.length;i++){
+    var it=recItems[i];
     html+='<div class="workout-item"><div class="wi-left"><span class="wi-emoji">'+it.emoji+'</span><span class="wi-name">'+it.name+'</span></div><div class="wi-right"><button class="btn btn-green btn-sm" onclick="openBili(\''+it.kw+'\')">B站</button></div></div>';
   }
   listEl.innerHTML=html;
-  document.getElementById('homeWorkSub').textContent=isRaining?'室内':'跟练';
+  document.getElementById('homeWorkSub').textContent=level==='indoor'?'室内':'跟练';
+}
+function rerollWorkout(){
+  wtPicked=null;
+  renderWorkout();
 }
 
 // ===== 计时器 =====
@@ -675,6 +747,7 @@ function renderPartner(){
 }
 
 // ===== 反思 =====
+var reflectSaveTimer=null;
 function getReflect(date){var all=JSON.parse(localStorage.getItem(reflectsKey())||'{}');return all[date]||{notes:[],text:''}}
 function saveReflectData(date,data){var all=JSON.parse(localStorage.getItem(reflectsKey())||'{}');all[date]=data;localStorage.setItem(reflectsKey(),JSON.stringify(all))}
 function addNote(){
@@ -682,6 +755,158 @@ function addNote(){
   var date=todayStr(),data=getReflect(date),now=new Date();
   data.notes.push({id:'n'+Date.now(),text:text,time:String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});
   saveReflectData(date,data);input.value='';renderReflect();debouncedSync();
+}
+function deleteNote(id){var date=todayStr(),data=getReflect(date);data.notes=data.notes.filter(function(n){return n.id!==id});saveReflectData(date,data);renderReflect();debouncedSync()}
+function autoSaveReflect(){
+  clearTimeout(reflectSaveTimer);
+  var hint=document.getElementById('reflectSaveHint');
+  if(hint)hint.textContent='编辑中...';
+  reflectSaveTimer=setTimeout(function(){
+    var date=todayStr(),data=getReflect(date);
+    data.text=document.getElementById('reflectArea').value;
+    saveReflectData(date,data);
+    debouncedSync();
+    if(hint)hint.textContent='已自动保存 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  },1500);
+}
+function saveReflect(){
+  var date=todayStr(),data=getReflect(date);
+  data.text=document.getElementById('reflectArea').value;
+  saveReflectData(date,data);
+  var el=document.getElementById('reflectArea');el.style.borderColor='var(--green)';
+  setTimeout(function(){el.style.borderColor=''},1500);
+  var hint=document.getElementById('reflectSaveHint');
+  if(hint)hint.textContent='已保存 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  debouncedSync();
+}
+function generateReflect(){
+  var date=todayStr(),data=getReflect(date),plan=getPlan(date);
+  var done=0,total=plan.tasks.length;
+  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++}
+  var undone=plan.tasks.filter(function(t){return!t.done});
+  var hasNotes=data.notes&&data.notes.length>0;
+  if(!hasNotes&&total===0){
+    document.getElementById('reflectArea').value='今天还没有记录触动，也没有计划数据。\n\n建议先去"随手记"记录今天的触动，或去"计划"页添加今日计划，再来生成反思。';
+    return;
+  }
+  var dateLabel=date.slice(5).replace('-','月')+'日';
+  var article='';
+  article+='### '+dateLabel+' 日反思\n\n';
+  article+='#### 一、今日概况\n';
+  if(total>0){
+    article+='今日计划完成 '+done+'/'+total+' 项';
+    if(undone.length>0){
+      article+='，未完成：';
+      for(var i=0;i<undone.length;i++){article+=undone[i].name+(i<undone.length-1?'、':'')}
+      article+='。';
+    }else{
+      article+='，全部完成。';
+    }
+    var totalActual=0,totalPlan=0;
+    for(var j=0;j<plan.tasks.length;j++){totalActual+=plan.tasks[j].actual;totalPlan+=plan.tasks[j].planned}
+    if(totalActual>0){article+='实际投入 '+totalActual+' 分钟（计划 '+totalPlan+' 分钟，完成率 '+Math.round(totalActual/totalPlan*100)+'%）。'}
+    article+='\n\n';
+  }else{
+    article+='今日未制定正式计划。\n\n';
+  }
+  article+='#### 二、触动与感悟\n';
+  if(hasNotes){
+    for(var i=0;i<data.notes.length;i++){
+      var n=data.notes[i];
+      article+='- ['+n.time+'] '+n.text+'\n';
+    }
+    article+='\n';
+  }else{
+    article+='今天没有记录具体的触动点。\n\n';
+  }
+  article+='#### 三、反思\n';
+  if(hasNotes&&total>0){
+    article+='今天记录了 '+data.notes.length+' 个触动，计划完成率 ';
+    if(total>0){article+=Math.round(done/total*100)+'%'}
+    article+='。';
+    if(done/total<0.8&&undone.length>0){
+      article+='完成率不够理想，未完成的'+undone.length+'项任务需要反思原因——是计划过于激进、时间分配不合理，还是执行意志力不足？';
+    }else if(done===total){
+      article+='计划全部完成，说明执行力在线。可以思考：是什么让自己今天保持高效？是目标的清晰度、时间的充裕，还是内在动力的驱动？';
+    }else{
+      article+='完成大部分计划，剩余未完成项是否优先级不够高，或者可以调整到明天？';
+    }
+    if(hasNotes){
+      article+=' 从今天的触动来看，';
+      var lastNote=data.notes[data.notes.length-1];
+      article+='"'+lastNote.text+'"这个点值得深入思考——它背后反映的是怎样的需求和价值观？';
+    }
+    article+='\n\n';
+  }else if(hasNotes){
+    article+='今天记录了 '+data.notes.length+' 个触动。虽然今天没有正式计划，但这些记录的触动本身就是自我觉察的开始。';
+    article+'回顾这些记录：';
+    for(var i=0;i<Math.min(3,data.notes.length);i++){article+='"' +data.notes[i].text+'"'}
+    article+='——这些触动之间是否有共性？它们指向了什么你真正在意的事情？\n\n';
+  }else{
+    article+='今天既没有计划也没有触动记录。这可能意味着今天是比较松弛的一天。松弛本身也是一种状态，但如果没有觉察，时间就容易在不知不觉中流逝。明天可以尝试至少记录一个触动。\n\n';
+  }
+  article+='#### 四、明日改进\n';
+  if(undone.length>0){
+    article+='1. 优先完成今天遗留的：';
+    for(var i=0;i<undone.length;i++){article+=undone[i].name+(i<undone.length-1?'、':'')}
+    article+='；\n';
+  }
+  if(done/total<0.5&&total>0){
+    article+='2. 调整计划节奏，避免贪多，确保每项任务有足够时间落地；\n';
+  }else{
+    article+='2. 继续保持今天的执行节奏，尝试在薄弱环节加力；\n';
+  }
+  if(hasNotes){
+    article+='3. 关注今天触动中反映的核心需求，在明天的行动中有意识地去满足它。\n';
+  }else{
+    article+='3. 明天尝试记录至少一个触动，培养觉察习惯。\n';
+  }
+  document.getElementById('reflectArea').value=article;
+  autoSaveReflect();
+}
+function copyNotesToAI(){
+  var date=todayStr(),data=getReflect(date),plan=getPlan(date);
+  var done=0,total=plan.tasks.length;
+  for(var i=0;i<plan.tasks.length;i++){if(plan.tasks[i].done)done++}
+  var undone=plan.tasks.filter(function(t){return!t.done});
+  var totalActual=0,totalPlan=0;
+  for(var j=0;j<plan.tasks.length;j++){totalActual+=plan.tasks[j].actual;totalPlan+=plan.tasks[j].planned}
+  var text='';
+  text+='请根据以下我的今日记录，帮我写一篇深度反思日记。要求：结合我的触动点深入分析背后的心理需求和价值观，不要只是罗列，要有洞察和自我对话，最后给出明天的具体改进行动。\n\n';
+  text+='【日期】'+date+'\n\n';
+  text+='【今日计划完成情况】\n';
+  if(total>0){
+    text+='完成 '+done+'/'+total+' 项';
+    if(undone.length>0){text+='，未完成：';for(var i=0;i<undone.length;i++)text+=undone[i].name+(i<undone.length-1?'、':'')}
+    if(totalActual>0)text+='\n实际投入时间：'+totalActual+'分钟 / 计划'+totalPlan+'分钟';
+    text+='\n';
+  }else{text+='今天没有制定计划\n'}
+  text+='\n【今日触动记录】\n';
+  if(data.notes&&data.notes.length>0){
+    for(var i=0;i<data.notes.length;i++){text+='['+data.notes[i].time+'] '+data.notes[i].text+'\n'}
+  }else{text+='（今天没有记录触动）\n'}
+  text+='\n【已有反思草稿】\n';
+  if(data.text){text+=data.text+'\n'}else{text+='（还没有写反思）\n'}
+  var hint=document.getElementById('reflectSaveHint');
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{
+    document.execCommand('copy');
+    if(hint)hint.textContent='已复制！粘贴到AI对话框即可生成深度反思';
+  }catch(e){
+    if(hint)hint.textContent='复制失败，请手动复制';
+  }
+  document.body.removeChild(ta);
+}
+function renderReflect(){
+  var date=todayStr(),data=getReflect(date);var list=document.getElementById('noteList'),html='';
+  for(var i=data.notes.length-1;i>=0;i--){var n=data.notes[i];html+='<div class="note-item"><span class="note-time">'+n.time+'</span><span class="note-text">'+n.text+'</span><button class="note-del" onclick="deleteNote(\''+n.id+'\')">✕</button></div>'}
+  list.innerHTML=html;document.getElementById('reflectArea').value=data.text||'';
+  var prompt=document.getElementById('reflectPrompt');if(data.notes.length>0){prompt.innerHTML='今天已记录 <b>'+data.notes.length+'</b> 个触动，可以据此写反思了'}else{prompt.textContent='今天还没有记录触动，先去记录一些吧'}
+  document.getElementById('homeReflectSub').textContent=data.notes.length>0?data.notes.length+'条':'触动';
+  var hint=document.getElementById('reflectSaveHint');
+  if(hint&&data.text){hint.textContent='上次保存于 ' +new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}
 }
 function deleteNote(id){var date=todayStr(),data=getReflect(date);data.notes=data.notes.filter(function(n){return n.id!==id});saveReflectData(date,data);renderReflect();debouncedSync()}
 function saveReflect(){var date=todayStr(),data=getReflect(date);data.text=document.getElementById('reflectArea').value;saveReflectData(date,data);var el=document.getElementById('reflectArea');el.style.borderColor='var(--green)';setTimeout(function(){el.style.borderColor=''},1500);debouncedSync()}
