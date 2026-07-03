@@ -172,7 +172,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 <!-- 首页 -->
 <div class="page" id="pageHome">
   <div class="home-greeting" id="greeting">早安</div>
-  <div class="home-name"><span id="homeUserName">宸总</span><button class="home-switch" onclick="showIdentity()">切换</button></div>
+  <div class="home-name"><span id="homeUserName">宸总</span><button class="home-switch" onclick="switchIdentity(partner())">切换</button></div>
   <div class="weather-bar" id="weatherBar"><span style="color:var(--dimmer);font-size:12px">获取天气...</span></div>
   <div class="home-grid">
     <div class="card" onclick="switchPage('Plan')"><div class="card-icon" id="homePlanIcon">&#128203;</div><div class="card-label">计划</div><div class="card-sub" id="homePlanSub">安排</div></div>
@@ -180,7 +180,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="card" onclick="switchPage('Reflect')"><div class="card-icon">&#128161;</div><div class="card-label">随手记</div><div class="card-sub" id="homeReflectSub">触动</div></div>
     <div class="card" onclick="switchPage('Plan');setTimeout(function(){document.getElementById('execSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9989;</div><div class="card-label">打卡</div><div class="card-sub" id="homeExecSub">执行</div></div>
     <div class="card" onclick="switchPage('Mine')"><div class="card-icon">&#128200;</div><div class="card-label">统计</div><div class="card-sub" id="homeStatsSub">0天</div></div>
-    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div><div class="card-sub">v10</div></div>
+    <div class="card" onclick="switchPage('Mine');setTimeout(function(){document.getElementById('aboutSection').scrollIntoView({behavior:'smooth'})},300)"><div class="card-icon">&#9881;</div><div class="card-label">关于</div>    <div class="card-sub">v11</div></div>
   </div>
   <div class="card"><div class="section-title">&#128221; 今日概览 <span class="sync-badge sync-ing" id="syncBadge">同步中</span></div><div class="today-summary" id="homeTodaySummary">还没有今日计划</div></div>
   <div class="partner-section" id="partnerHomeSection" style="display:none"><div class="partner-header" id="partnerHomeName">&#128149; TA的计划</div><div id="partnerHomeTasks"></div></div>
@@ -263,7 +263,7 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
     <div class="rules"><h3>双人共享</h3><ul><li>宸总和宝宝酱各自独立使用</li><li>自己的计划自己编辑</li><li>首页能看到TA的计划</li><li>数据自动同步</li></ul></div>
     <div class="rules"><h3>晨练推荐规则</h3><ul><li>6:00前起床 → S级户外运动</li><li>6:00-7:10 → A级有氧/力量</li><li>7:10之后 → B级短时燃脂</li><li>下雨自动切换室内运动</li></ul></div>
     <div class="rules"><h3>Apple Watch</h3><ul><li>Watch计时+心率+卡路里</li><li>手机看B站跟练+打卡</li></ul></div>
-    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v10 · 计划·执行·晨练·反思</div>
+    <div style="text-align:center;font-size:11px;color:var(--dimmer);padding:10px 0">宸总助手 v11 · 计划·执行·晨练·反思</div>
   </div>
 </div>
 
@@ -279,11 +279,51 @@ body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;backgro
 // ===== 身份 =====
 var USERS=['宸总','宝宝酱'];
 var me=localStorage.getItem('cl_identity')||'';
+// 数据隔离：按用户名后缀存储
+function plansKey(){return 'cl_plans_'+me}
+function reflectsKey(){return 'cl_reflects_'+me}
+// 一次性迁移旧数据（cl_plans → cl_plans_宸总）
+function migrateOldData(){
+  var old=localStorage.getItem('cl_plans');
+  if(old&&old!=='{}'&&!localStorage.getItem('cl_plans_宸总')){
+    localStorage.setItem('cl_plans_宸总',old);
+  }
+  var old2=localStorage.getItem('cl_reflects');
+  if(old2&&old2!=='{}'&&!localStorage.getItem('cl_reflects_宸总')){
+    localStorage.setItem('cl_reflects_宸总',old2);
+  }
+}
+migrateOldData();
 function setIdentity(name){
   me=name;localStorage.setItem('cl_identity',name);
   var tk=document.getElementById('tokenInput').value.trim();
   if(tk){localStorage.setItem('cl_gh_token',tk);GH_TOKEN=tk}
   document.getElementById('pageIdentity').style.display='none';document.getElementById('mainNav').style.display='flex';initApp()
+}
+function switchIdentity(name){
+  if(name===me)return;
+  // 先同步当前用户数据到云端
+  syncing=false; // 重置锁
+  syncNow();
+  // 切换身份（这会影响 plansKey/reflectsKey 返回值）
+  me=name;localStorage.setItem('cl_identity',name);
+  // 从云端拉取新用户数据，若无云端数据则本地为空
+  syncing=false;
+  cloudRead(function(err,cloud){
+    if(!err&&cloud&&cloud[me]){
+      // 将云端该用户的数据写入本地
+      var cloudPlans=cloud[me].plans||{};
+      var cloudReflects=cloud[me].reflects||{};
+      localStorage.setItem(plansKey(),JSON.stringify(cloudPlans));
+      localStorage.setItem(reflectsKey(),JSON.stringify(cloudReflects));
+      // 对方数据缓存
+      var p=partner();
+      if(cloud[p]){localStorage.setItem('cl_partner_data',JSON.stringify(cloud[p]))}
+      else{localStorage.removeItem('cl_partner_data')}
+    }
+    // 刷新全部页面
+    initApp();
+  });
 }
 function showIdentity(){document.getElementById('pageIdentity').style.display='flex';document.getElementById('mainNav').style.display='none';if(GH_TOKEN)document.getElementById('tokenInput').value=GH_TOKEN}
 function partner(){return USERS.filter(function(u){return u!==me})[0]||''}
@@ -374,7 +414,7 @@ function setSyncBadge(s){
   else{el.className='sync-badge sync-ing';el.textContent='同步中'}
 }
 function getAllLocal(){
-  return{plans:JSON.parse(localStorage.getItem('cl_plans')||'{}'),reflects:JSON.parse(localStorage.getItem('cl_reflects')||'{}')};
+  return{plans:JSON.parse(localStorage.getItem(plansKey())||'{}'),reflects:JSON.parse(localStorage.getItem(reflectsKey())||'{}')};
 }
 
 // ===== 常驻计划 =====
@@ -446,8 +486,8 @@ function changePlanDate(dir){var d=dateFromStr(currentPlanDate);d.setDate(d.getD
 function goToday(){currentPlanDate=todayStr();renderPlan()}
 
 // ===== 计划 =====
-function getPlan(date){var all=JSON.parse(localStorage.getItem('cl_plans')||'{}');return all[date]||{tasks:[]}}
-function savePlan(date,plan){var all=JSON.parse(localStorage.getItem('cl_plans')||'{}');all[date]=plan;localStorage.setItem('cl_plans',JSON.stringify(all))}
+function getPlan(date){var all=JSON.parse(localStorage.getItem(plansKey())||'{}');return all[date]||{tasks:[]}}
+function savePlan(date,plan){var all=JSON.parse(localStorage.getItem(plansKey())||'{}');all[date]=plan;localStorage.setItem(plansKey(),JSON.stringify(all))}
 function getTaskId(){return't'+Date.now()+Math.random().toString(36).slice(2,5)}
 function renderPermanentBar(){
   var bar=document.getElementById('permanentBar'),html='';
@@ -635,8 +675,8 @@ function renderPartner(){
 }
 
 // ===== 反思 =====
-function getReflect(date){var all=JSON.parse(localStorage.getItem('cl_reflects')||'{}');return all[date]||{notes:[],text:''}}
-function saveReflectData(date,data){var all=JSON.parse(localStorage.getItem('cl_reflects')||'{}');all[date]=data;localStorage.setItem('cl_reflects',JSON.stringify(all))}
+function getReflect(date){var all=JSON.parse(localStorage.getItem(reflectsKey())||'{}');return all[date]||{notes:[],text:''}}
+function saveReflectData(date,data){var all=JSON.parse(localStorage.getItem(reflectsKey())||'{}');all[date]=data;localStorage.setItem(reflectsKey(),JSON.stringify(all))}
 function addNote(){
   var input=document.getElementById('noteInput'),text=input.value.trim();if(!text)return;
   var date=todayStr(),data=getReflect(date),now=new Date();
@@ -676,7 +716,7 @@ function updateHomeSummary(){
 function updateMine(){
   document.getElementById('mineName').textContent=me;
   document.getElementById('mineAvatar').textContent=me==='宸总'?'\ud83d\udc51':'\ud83d\udc69';
-  var plans=JSON.parse(localStorage.getItem('cl_plans')||'{}');var reflects=JSON.parse(localStorage.getItem('cl_reflects')||'{}');
+  var plans=JSON.parse(localStorage.getItem(plansKey())||'{}');var reflects=JSON.parse(localStorage.getItem(reflectsKey())||'{}');
   var allDays=0,allRate=0,allReflect=0;
   for(var key in plans){var p=plans[key];if(p.tasks&&p.tasks.length>0){allDays++;var d2=0;for(var j=0;j<p.tasks.length;j++){if(p.tasks[j].done)d2++}allRate+=Math.round(d2/p.tasks.length*100)}}
   for(var key in reflects){if(reflects[key].text)allReflect++}
